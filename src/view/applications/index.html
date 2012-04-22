@@ -1,0 +1,17 @@
+{% extends "templates/application.html" %}
+
+{% block title %}My applications{% endblock %}
+
+{% block body %}
+<h1>My applications</h1>
+{% if applications %}
+  <ul>
+    {% for app in applications %}
+      <li><a href="#">{{ app.name }}</a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>You don't have any applications yet.</p>
+{% endif %}
+<a href="{% url action="create" %}">Create an application</a>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "templates/application.html" %}
+
+{% block title %}Create an application{% endblock %}
+
+{% block body %}
+<h1>New application</h1>
+<form method="POST">
+  <label>Name: <input type="text" name="name"></label><br>
+  <label>Debug mode: <input type="checkbox" name="debug_mode" value="1"></label><br>
+  <input type="submit" value="Create application">
+</form>
+{% endblock %}

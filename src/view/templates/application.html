@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+  {% if boss_flash %}
+    {% for flash in boss_flash %}
+      <p class="flash {{ flash.method }}">
+        {% if flash.title %}<strong>{{ flash.title }}:</strong> {% endif %}
+        {{ flash.message }}
+      </p>
+    {% endfor %}
+  {% endif %}
+  {% block body %}{% endblock %}
+</body>
+</html>
