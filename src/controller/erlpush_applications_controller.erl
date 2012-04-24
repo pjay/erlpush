@@ -13,6 +13,8 @@ create('GET', [], ExtraInfo) ->
 create('POST', [], ExtraInfo) ->
     {user_id, UserId} = ExtraInfo,
     Name = Req:post_param("name"),
+    CertFile = Req:post_files(),
+    [{uploaded_file, _FileName, TempPath, _FileSize}] = CertFile,
     DebugMode = case Req:post_param("debug_mode") of
         "1" -> true;
         _   -> false
@@ -20,6 +22,8 @@ create('POST', [], ExtraInfo) ->
     NewApplication = mobile_application:new(id, UserId, Name, DebugMode),
     case NewApplication:save() of
         {ok, SavedApplication} ->
+            CertFileName = "priv/certs/" ++ SavedApplication:id() ++ ".pem",
+            file:rename(TempPath, CertFileName),
             boss_flash:add(SessionID, notice, "Application successfully created", ""),
             {redirect, [{action, "index"}]};
         {error, ErrorList} ->
