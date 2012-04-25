@@ -31,5 +31,5 @@ create('POST', [], ExtraInfo) ->
             {redirect, [{action, "create"}]}
     end.
 
-before_(ActionName) ->
+before_(_ActionName) ->
     user_utils:require_login(SessionID).
