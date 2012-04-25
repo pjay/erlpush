@@ -19,7 +19,7 @@ create('POST', [], ExtraInfo) ->
         "1" -> true;
         _   -> false
     end,
-    NewApplication = mobile_application:new(id, UserId, Name, DebugMode),
+    NewApplication = boss_record:new(mobile_application, [{push_user_id, UserId}, {name, Name}, {debug_mode, DebugMode}]),
     case NewApplication:save() of
         {ok, SavedApplication} ->
             CertFileName = "priv/certs/" ++ SavedApplication:id() ++ ".pem",
