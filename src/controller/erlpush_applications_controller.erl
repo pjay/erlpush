@@ -8,6 +8,18 @@ index('GET', [], ExtraInfo) ->
     Applications = boss_db:find(mobile_application, [push_user_id = UserId]),
     {ok, [{applications, Applications}]}.
 
+show('GET', [Id], ExtraInfo) ->
+    {user_id, UserId} = ExtraInfo,
+    case boss_db:find(Id) of
+        Application ->
+            case Application:push_user_id() of
+                UserId -> {ok, [{mobile_application, Application}]};
+                _ -> not_found
+            end;
+        {error, Reason} ->
+            not_found
+    end.
+
 create('GET', [], ExtraInfo) ->
     ok;
 create('POST', [], ExtraInfo) ->

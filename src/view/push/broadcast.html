@@ -1,0 +1,15 @@
+{% extends "templates/application.html" %}
+
+{% block title %}Send a broadcast notification{% endblock %}
+
+{% block body %}
+<h1>Send a broadcast notification</h1>
+<p>The message will be sent to XXX users.</p>
+<form method="POST">
+  <p>
+    Message:<br>
+    <textarea name="message" cols="60" rows="4"></textarea><br>
+    <input type="submit" value="Send broadcast">
+  </p>
+</form>
+{% endblock %}

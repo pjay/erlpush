@@ -7,7 +7,7 @@
 {% if applications %}
   <ul>
     {% for app in applications %}
-      <li><a href="#">{{ app.name }}</a></li>
+      <li><a href="{% url action="show" id=app.id %}">{{ app.name }}</a></li>
     {% endfor %}
   </ul>
 {% else %}
