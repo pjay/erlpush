@@ -3,7 +3,7 @@
 {% block title %}Send a broadcast notification{% endblock %}
 
 {% block body %}
-<h1>Send a broadcast notification</h1>
+<h2>Send a broadcast notification</h2>
 <p>The message will be sent to {{ application.device_tokens | length }} users.</p>
 <form method="POST">
   <input type="hidden" name="mobile_application_id" value="{{ application.id }}">
