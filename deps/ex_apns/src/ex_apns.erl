@@ -28,6 +28,7 @@
          start_link/3,
          send/3,
          send/4,
+         read_error_response/1,
          feedback/1,
          token_to_integer/1,
          token_to_binary/1]).
@@ -69,6 +70,11 @@ send(ServerRef, Token, Payload) ->
 send(ServerRef, Token, Payload, Expiry) ->
   gen_server:cast(ServerRef, {send, Token, Payload, Expiry}).
 
+%% @spec read_error_response(server_ref()) -> {iodata(), atom()} | undefined
+%% @doc Read (timeout 250ms) any error response packet of a given ex_apns process.
+read_error_response(ServerRef) ->
+  gen_server:call(ServerRef, read_error_response).
+
 %% @spec feedback(server_ref()) -> feedback() | {error, term()}
 %% @doc Retrieve feedback of a given ex_apns process.
 feedback(ServerRef) ->
@@ -106,6 +112,9 @@ init({Env, CertFile}) ->
 handle_call(feedback_socket, _From,
             State = #state{env = Env, certfile = CertFile}) ->
   {reply, connect(env_to_feedback(Env), 2196, CertFile), State};
+handle_call(read_error_response, _From, State = #state{socket = Socket}) ->
+  Error = read_error(Socket, 250),
+  {reply, Error, State};
 handle_call(_Request, _From, State) ->
   {reply, ok, State}.
 
@@ -177,7 +186,10 @@ send(Packet, State = #state{socket = Socket}) ->
     {error, Reason} -> {stop, Reason} end.
 
 read_error(Socket) ->
-  case ssl:recv(Socket, 6) of
+  read_error(Socket, infinity).
+
+read_error(Socket, Timeout) ->
+  case ssl:recv(Socket, 6, Timeout) of
     {ok, <<8, Status, Identifier:32>>} when Status =/= 0 ->
       {Identifier, status_to_reason(Status)};
     _ -> undefined end.
