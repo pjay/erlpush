@@ -206,8 +206,8 @@ feedback_loop(Socket) ->
 
 %% @hidden
 feedback_loop(Socket, Acc) ->
-  case ssl:recv(Socket, 39, infinity) of
-    {ok, <<8, Timestamp:32, 32:16, Token:256>>} ->
+  case ssl:recv(Socket, 38, infinity) of
+    {ok, <<Timestamp:32, 32:16, Token:256>>} ->
       feedback_loop(Socket, [{Token, Timestamp} | Acc]);
     {error, closed} -> lists:reverse(Acc);
     Error -> Error end.
