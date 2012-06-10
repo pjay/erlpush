@@ -57,8 +57,8 @@
       {% if boss_flash %}
         {% for flash in boss_flash %}
           <p class="flash {{ flash.method }}">
-            {% if flash.title %}<strong>{{ flash.title }}:</strong> {% endif %}
-            {{ flash.message }}
+            {% if flash.title %}<strong>{{ flash.title }}{% if flash.message %}:{% endif %}</strong> {% endif %}
+            {% if flash.message %}{{ flash.message }}{% endif %}
           </p>
         {% endfor %}
       {% endif %}

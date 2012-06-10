@@ -1,9 +1,47 @@
-form dt {
+/* Flash messages */
+
+p.flash {
+  padding: 5px;
+}
+p.flash.notice {
+  background-color: #efe;
+}
+p.flash.error {
+  background-color: #fee;
+}
+
+/* Users login */
+
+form dl#login dt {
   float: left;
   width: 80px;
   padding-top: 1px;
 }
-form dd {
+form dl#login dd {
+  margin: 0 0 10px 90px;
+  margin-left: 80px;
+}
+
+/* New application */
+
+form dl#new-application dt {
+  float: left;
+  width: 120px;
+  padding-top: 1px;
+}
+form dl#new-application dd {
+  margin: 0 0 10px 130px;
+  margin-left: 120px;
+}
+
+/* Application broadcast */
+
+form dl#application-broadcast dt {
+  float: left;
+  width: 80px;
+  padding-top: 1px;
+}
+form dl#application-broadcast dd {
   margin: 0 0 10px 90px;
   margin-left: 80px;
 }

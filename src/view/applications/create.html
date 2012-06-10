@@ -5,10 +5,22 @@
 {% block body %}
 <h2>New application</h2>
 <form method="POST" enctype="multipart/form-data">
-  <label>Name: <input type="text" name="name"></label><br>
-  <label>PEM certificate: <input type="file" name="certificate"></label><br>
-  <label>Debug mode: <input type="checkbox" name="debug_mode" value="1"></label><br>
-  <input type="submit" value="Create application">
-  or <a href="{% url action="index" %}">Cancel</a>
+  <dl id="new-application">
+    <dt><label for="application_name">Name</label></dt>
+    <dd><input type="text" name="name" id="application_name"></dd>
+    <dt><label for="application_certificate">PEM certificate</label></dt>
+    <dd><input type="file" name="certificate" id="application_certificate"></dd>
+    <dt><label for="application_debug_mode">Debug mode</label></dt>
+    <dd><input type="checkbox" name="debug_mode" id="application_debug_mode" value="1"></dd>
+    <dd><input type="submit" value="Create application"> or <a href="{% url action="index" %}">Cancel</a></dd>
+  </dl>
 </form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $("input[type='text']:first", document.forms[0]).focus();
+});
+</script>
 {% endblock %}

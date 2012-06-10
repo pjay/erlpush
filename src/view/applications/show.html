@@ -14,10 +14,8 @@
   Number of registered device tokens: {{ mobile_application.device_tokens | length }}
 </p>
 <h3>Actions</h3>
-<p>
-  <a href="{% url controller="push" action="broadcast" app_id=mobile_application.id %}">Send a broadcast notification</a>
-</p>
-<p>
-  <a href="{% url action="index" %}">Back to applications</a>
-</p>
+<ul>
+  <li><a href="{% url controller="push" action="broadcast" app_id=mobile_application.id %}">Send a broadcast notification</a></li>
+  <li><a href="#">Edit this application</a></li>
+</ul>
 {% endblock %}

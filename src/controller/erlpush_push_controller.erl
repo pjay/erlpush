@@ -28,7 +28,7 @@ broadcast('POST', [AppId], ExtraInfo) ->
             boss_flash:add(SessionID, error, "Error sending message", ""),
             error
     end,
-    {redirect, [{action, "broadcast"}, {app_id, AppId}]}.
+    {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 
 before_(_ActionName) ->
     user_utils:require_login(SessionID).

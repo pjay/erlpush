@@ -7,11 +7,18 @@
 <p>The message will be sent to {{ application.device_tokens | length }} users.</p>
 <form method="POST">
   <input type="hidden" name="mobile_application_id" value="{{ application.id }}">
-  <p>
-    Message:<br>
-    <textarea name="message" cols="60" rows="4"></textarea><br>
-    <input type="submit" value="Send broadcast">
-    or <a href="{% url controller="applications" action="show" id=application.id %}">Cancel</a>
-  </p>
+  <dl id="application-broadcast">
+    <dt><label for="broadcast_message">Message</label></dt>
+    <dd><textarea name="message" id="broadcast_message" cols="60" rows="4"></textarea></dd>
+    <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=application.id %}">Cancel</a></dd>
+  </dl>
 </form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $("textarea:first", document.forms[0]).focus();
+});
+</script>
 {% endblock %}
