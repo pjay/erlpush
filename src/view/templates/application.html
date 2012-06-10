@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="author" content="Philippe Jayet" />
   <link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/variant-light.css" title="Variant Light" media="screen,projection" />
+  <link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/application.css" />
   <title>erlpush - {% block title %}{% endblock %}</title>
 </head>
 
@@ -11,7 +12,7 @@
 <div id="header">
   <div id="title">
     <h1><a href="{{ _base_url }}/">erlpush</a></h1>
-    <p class="slogan">Push notifications for mobile apps</p>
+    <p class="slogan">Push notifications for iOS &amp; Android apps</p>
   </div>
 </div>
 
@@ -69,6 +70,10 @@
 <div id="footer">
   <p>Copyright &copy; 2012 <a href="{{ _base_url }}/">Philippe Jayet</a> | Template design by <a href="http://andreasviklund.com/">Andreas Viklund</a></p>
 </div>
+
+<script type="text/javascript" src="{{ _base_url }}/static/javascripts/jquery-1.7.2.min.js"></script>
+
+{% block javascript %}{% endblock %}
 
 </body>
 </html>

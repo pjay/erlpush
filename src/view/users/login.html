@@ -5,8 +5,20 @@
 {% block body %}
 <h2>Login</h2>
 <form method="POST">
-  Email : <input type="text" name="email"><br>
-  Password : <input type="password" name="password"><br>
-  <input type="submit" value="Login">
+  <dl>
+    <dt>Email</dt>
+    <dd><input type="text" name="email"></dd>
+    <dt>Password</dt>
+    <dd><input type="password" name="password"></dd>
+    <dd><input type="submit" value="Login"></dd>
+  </dl>
 </form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $("input[type='text']:first", document.forms[0]).focus();
+});
+</script>
 {% endblock %}

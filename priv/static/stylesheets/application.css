@@ -1,0 +1,9 @@
+form dt {
+  float: left;
+  width: 80px;
+  padding-top: 1px;
+}
+form dd {
+  margin: 0 0 10px 90px;
+  margin-left: 80px;
+}
