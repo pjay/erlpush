@@ -4,11 +4,14 @@
 
 {% block body %}
 <h2>{{ mobile_application.name }}</h2>
-<p>
-  API key: {{ mobile_application.api_key }}<br>
-  API secret: {{ mobile_application.api_secret }}<br>
-  Debug mode: {% if mobile_application.debug_mode %}YES{% else %}NO{% endif %}
-</p>
+<dl id="application-details">
+  <dt>API key</dt>
+  <dd>{{ mobile_application.api_key }}</dd>
+  <dt>API secret</dt>
+  <dd>{{ mobile_application.api_secret }}</dd>
+  <dt>Debug mode</dt>
+  <dd>{% if mobile_application.debug_mode %}YES{% else %}NO{% endif %}</dd>
+</dl>
 <h3>Statistics</h3>
 <p>
   Number of registered device tokens: {{ mobile_application.device_tokens | length }}

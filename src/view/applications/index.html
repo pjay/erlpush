@@ -13,5 +13,7 @@
 {% else %}
   <p>You don't have any applications yet.</p>
 {% endif %}
-<a href="{% url action="create" %}">Create an application</a>
+<p>
+  <a href="{% url action="create" %}">Create an application</a>
+</p>
 {% endblock %}

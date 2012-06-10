@@ -22,6 +22,18 @@ form dl#login dd {
   margin-left: 80px;
 }
 
+/* Application details */
+
+dl#application-details dt {
+  float: left;
+  width: 90px;
+  padding-top: 1px;
+}
+dl#application-details dd {
+  margin: 0 0 1px 100px;
+  margin-left: 90px;
+}
+
 /* New application */
 
 form dl#new-application dt {
