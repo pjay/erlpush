@@ -4,6 +4,8 @@
 broadcast('GET', [AppId], ExtraInfo) ->
     {user_id, UserId} = ExtraInfo,
     case boss_db:find(AppId) of
+        undefined ->
+            not_found;
         Application ->
             case Application:push_user_id() of
                 UserId -> {ok, [{user_id, UserId}, {application, Application}]};

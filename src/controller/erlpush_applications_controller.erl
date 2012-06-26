@@ -11,6 +11,8 @@ index('GET', [], ExtraInfo) ->
 show('GET', [Id], ExtraInfo) ->
     {user_id, UserId} = ExtraInfo,
     case boss_db:find(Id) of
+        undefined ->
+            not_found;
         Application ->
             case Application:push_user_id() of
                 UserId -> {ok, [{mobile_application, Application}]};
