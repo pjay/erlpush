@@ -24,36 +24,36 @@ form dl#login dd {
 
 /* Application details */
 
-dl#application-details dt {
+dl#app-details dt {
   float: left;
   width: 90px;
   padding-top: 1px;
 }
-dl#application-details dd {
+dl#app-details dd {
   margin: 0 0 1px 100px;
   margin-left: 90px;
 }
 
 /* New application */
 
-form dl#new-application dt {
+form dl#new-app dt {
   float: left;
   width: 120px;
   padding-top: 1px;
 }
-form dl#new-application dd {
+form dl#new-app dd {
   margin: 0 0 10px 130px;
   margin-left: 120px;
 }
 
 /* Application broadcast */
 
-form dl#application-broadcast dt {
+form dl#app-broadcast dt {
   float: left;
   width: 80px;
   padding-top: 1px;
 }
-form dl#application-broadcast dd {
+form dl#app-broadcast dd {
   margin: 0 0 10px 90px;
   margin-left: 80px;
 }

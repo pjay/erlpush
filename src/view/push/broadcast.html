@@ -4,13 +4,13 @@
 
 {% block body %}
 <h2>Send a broadcast notification</h2>
-<p>The message will be sent to {{ application.device_tokens | length }} users.</p>
+<p>The message will be sent to {{ app.device_tokens | length }} users.</p>
 <form method="POST">
-  <input type="hidden" name="mobile_application_id" value="{{ application.id }}">
-  <dl id="application-broadcast">
+  <input type="hidden" name="app_id" value="{{ app.id }}">
+  <dl id="app-broadcast">
     <dt><label for="broadcast_message">Message</label></dt>
     <dd><textarea name="message" id="broadcast_message" cols="60" rows="4"></textarea></dd>
-    <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=application.id %}">Cancel</a></dd>
+    <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=app.id %}">Cancel</a></dd>
   </dl>
 </form>
 {% endblock %}

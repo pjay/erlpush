@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.35, for apple-darwin9.5.0 (i386)
+-- MySQL dump 10.13  Distrib 5.5.25, for osx10.7 (i386)
 --
 -- Host: localhost    Database: erlpush
 -- ------------------------------------------------------
--- Server version	5.1.35
+-- Server version	5.5.25
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,29 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `device_tokens`
+-- Table structure for table `apps`
 --
 
-DROP TABLE IF EXISTS `device_tokens`;
+DROP TABLE IF EXISTS `apps`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `device_tokens` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `mobile_application_id` int(11) NOT NULL,
-  `value` varchar(64) NOT NULL,
-  `last_registration_time` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `mobile_applications`
---
-
-DROP TABLE IF EXISTS `mobile_applications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `mobile_applications` (
+CREATE TABLE `apps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `push_user_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -48,7 +32,23 @@ CREATE TABLE `mobile_applications` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `key` (`api_key`),
   KEY `push_user_id` (`push_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `device_tokens`
+--
+
+DROP TABLE IF EXISTS `device_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `device_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_id` int(11) NOT NULL,
+  `value` varchar(64) NOT NULL,
+  `last_registration_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +65,7 @@ CREATE TABLE `push_users` (
   `hashed_password` varchar(40) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,4 +91,4 @@ CREATE TABLE `roles` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-04-25  7:16:13
+-- Dump completed

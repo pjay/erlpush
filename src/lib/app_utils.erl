@@ -1,4 +1,4 @@
--module(mobile_application_utils).
+-module(app_utils).
 -compile(export_all).
 
 generate_key() ->

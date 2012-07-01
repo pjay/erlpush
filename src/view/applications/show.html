@@ -3,22 +3,22 @@
 {% block title %}Create an application{% endblock %}
 
 {% block body %}
-<h2>{{ mobile_application.name }}</h2>
-<dl id="application-details">
+<h2>{{ app.name }}</h2>
+<dl id="app-details">
   <dt>API key</dt>
-  <dd>{{ mobile_application.api_key }}</dd>
+  <dd>{{ app.api_key }}</dd>
   <dt>API secret</dt>
-  <dd>{{ mobile_application.api_secret }}</dd>
+  <dd>{{ app.api_secret }}</dd>
   <dt>Debug mode</dt>
-  <dd>{% if mobile_application.debug_mode %}YES{% else %}NO{% endif %}</dd>
+  <dd>{% if app.debug_mode %}YES{% else %}NO{% endif %}</dd>
 </dl>
 <h3>Statistics</h3>
 <p>
-  Number of registered device tokens: {{ mobile_application.device_tokens | length }}
+  Number of registered device tokens: {{ app.device_tokens | length }}
 </p>
 <h3>Actions</h3>
 <ul>
-  <li><a href="{% url controller="push" action="broadcast" app_id=mobile_application.id %}">Send a broadcast notification</a></li>
+  <li><a href="{% url controller="push" action="broadcast" app_id=app.id %}">Send a broadcast notification</a></li>
   <li><a href="#">Edit this application</a></li>
 </ul>
 {% endblock %}

@@ -4,9 +4,9 @@
 
 {% block body %}
 <h2>My applications</h2>
-{% if applications %}
+{% if apps %}
   <ul>
-    {% for app in applications %}
+    {% for app in apps %}
       <li><a href="{% url action="show" id=app.id %}">{{ app.name }}</a></li>
     {% endfor %}
   </ul>

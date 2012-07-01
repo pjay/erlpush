@@ -2,7 +2,7 @@
 -compile(export_all).
 
 device_tokens('PUT', [TokenValue], ExtraInfo) ->
-    case proplists:get_value(mobile_application, ExtraInfo) of
+    case proplists:get_value(app, ExtraInfo) of
         undefined ->
             result_invalid_key_or_secret();
         App ->
@@ -12,7 +12,7 @@ device_tokens('PUT', [TokenValue], ExtraInfo) ->
                     NewToken = Token:set(last_registration_time, calendar:universal_time()),
                     StatusCode = 200;
                 _ ->
-                    NewToken = boss_record:new(device_token, [{mobile_application_id, App:id()}, {value, TokenValue}, {last_registration_time, calendar:universal_time()}]),
+                    NewToken = boss_record:new(device_token, [{app_id, App:id()}, {value, TokenValue}, {last_registration_time, calendar:universal_time()}]),
                     StatusCode = 201
             end,
             case NewToken:save() of
@@ -23,7 +23,7 @@ device_tokens('PUT', [TokenValue], ExtraInfo) ->
             end
     end;
 device_tokens('DELETE', [TokenValue], ExtraInfo) ->
-    case proplists:get_value(mobile_application, ExtraInfo) of
+    case proplists:get_value(app, ExtraInfo) of
         undefined ->
             result_invalid_key_or_secret();
         App ->
@@ -42,11 +42,11 @@ before_(_ActionName) ->
     [AuthType, EncodedAuth] = string:tokens(AuthHeader, " "),
     DecodedAuth = base64:decode_to_string(EncodedAuth),
     [AppKey, AppSecret] = string:tokens(DecodedAuth, ":"),
-    Results = boss_db:find(mobile_application, [api_key = AppKey, api_secret = AppSecret]),
+    Results = boss_db:find(app, [api_key = AppKey, api_secret = AppSecret]),
     case length(Results) of
         1 ->
             App = hd(Results),
-            {ok, [{mobile_application, App}]};
+            {ok, [{app, App}]};
         _ ->
             {ok, []}
     end.

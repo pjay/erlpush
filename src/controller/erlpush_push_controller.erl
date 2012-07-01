@@ -6,25 +6,25 @@ broadcast('GET', [AppId], ExtraInfo) ->
     case boss_db:find(AppId) of
         undefined ->
             not_found;
-        Application ->
-            case Application:push_user_id() of
-                UserId -> {ok, [{user_id, UserId}, {application, Application}]};
+        App ->
+            case App:push_user_id() of
+                UserId -> {ok, [{user_id, UserId}, {app, App}]};
                 _ -> not_found
             end;
         {error, Reason} ->
             not_found
     end;
 broadcast('POST', [AppId], ExtraInfo) ->
-    Application = boss_db:find(AppId),
+    App = boss_db:find(AppId),
     Message = Req:post_param("message"),
     Payload = [{aps,[{alert, list_to_binary(Message)}]}],
     ex_apns:start(),
-    CertFile = filename:join([code:priv_dir(erlpush), "certs", Application:id() ++ ".pem"]),
+    CertFile = filename:join([code:priv_dir(erlpush), "certs", App:id() ++ ".pem"]),
     case ex_apns:start_link('apns_sender', development, CertFile) of
         {ok, ApnsPid} ->
-            send_notification(ApnsPid, Application:device_tokens(), Payload);
+            send_notification(ApnsPid, App:device_tokens(), Payload);
         {error, {already_started, ApnsPid}} ->
-            send_notification(ApnsPid, Application:device_tokens(), Payload);
+            send_notification(ApnsPid, App:device_tokens(), Payload);
         {error, Reason} ->
             error_logger:error_report(Reason),
             boss_flash:add(SessionID, error, "Error sending message", ""),

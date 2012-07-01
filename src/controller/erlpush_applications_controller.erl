@@ -5,17 +5,17 @@
 
 index('GET', [], ExtraInfo) ->
     {user_id, UserId} = ExtraInfo,
-    Applications = boss_db:find(mobile_application, [push_user_id = UserId]),
-    {ok, [{applications, Applications}]}.
+    Apps = boss_db:find(app, [push_user_id = UserId]),
+    {ok, [{apps, Apps}]}.
 
 show('GET', [Id], ExtraInfo) ->
     {user_id, UserId} = ExtraInfo,
     case boss_db:find(Id) of
         undefined ->
             not_found;
-        Application ->
-            case Application:push_user_id() of
-                UserId -> {ok, [{mobile_application, Application}]};
+        App ->
+            case App:push_user_id() of
+                UserId -> {ok, [{app, App}]};
                 _ -> not_found
             end;
         {error, Reason} ->
@@ -33,10 +33,10 @@ create('POST', [], ExtraInfo) ->
         "1" -> true;
         _   -> false
     end,
-    NewApplication = boss_record:new(mobile_application, [{push_user_id, UserId}, {name, Name}, {debug_mode, DebugMode}]),
-    case NewApplication:save() of
-        {ok, SavedApplication} ->
-            CertFileName = "priv/certs/" ++ SavedApplication:id() ++ ".pem",
+    NewApp = boss_record:new(app, [{push_user_id, UserId}, {name, Name}, {debug_mode, DebugMode}]),
+    case NewApp:save() of
+        {ok, SavedApp} ->
+            CertFileName = "priv/certs/" ++ SavedApp:id() ++ ".pem",
             file:rename(TempPath, CertFileName),
             boss_flash:add(SessionID, notice, "Application successfully created", ""),
             {redirect, [{action, "index"}]};
