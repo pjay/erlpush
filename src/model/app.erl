@@ -3,6 +3,10 @@
 
 -belongs_to(push_user).
 -has({device_tokens, many}).
+-has({notifications, many}).
+
+cert_path() ->
+	filename:join([code:priv_dir(erlpush), "certs", Id ++ ".pem"]).
 
 before_create() ->
     NewKey = app_utils:generate_key(),

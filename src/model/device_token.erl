@@ -2,6 +2,7 @@
 -compile(export_all).
 
 -belongs_to(app).
+-has({notifications, many}).
 
 validation_tests() ->
 	[{fun() -> length(Value) =:= 64 end, "Device token should have 64 characters"}].

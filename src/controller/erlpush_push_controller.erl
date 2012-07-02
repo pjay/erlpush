@@ -18,18 +18,20 @@ broadcast('POST', [AppId], ExtraInfo) ->
     App = boss_db:find(AppId),
     Message = Req:post_param("message"),
     Payload = [{aps,[{alert, list_to_binary(Message)}]}],
-    ex_apns:start(),
-    CertFile = filename:join([code:priv_dir(erlpush), "certs", App:id() ++ ".pem"]),
-    case ex_apns:start_link('apns_sender', development, CertFile) of
-        {ok, ApnsPid} ->
-            send_notification(ApnsPid, App:device_tokens(), Payload);
-        {error, {already_started, ApnsPid}} ->
-            send_notification(ApnsPid, App:device_tokens(), Payload);
-        {error, Reason} ->
-            error_logger:error_report(Reason),
-            boss_flash:add(SessionID, error, "Error sending message", ""),
-            error
-    end,
+    push_dispatcher:start(),
+    % ex_apns:start(),
+    % CertFile = filename:join([code:priv_dir(erlpush), "certs", App:id() ++ ".pem"]),
+    % case ex_apns:start_link('apns_sender', development, CertFile) of
+    %     {ok, ApnsPid} ->
+    %         send_notification(ApnsPid, App:device_tokens(), Payload);
+    %     {error, {already_started, ApnsPid}} ->
+    %         send_notification(ApnsPid, App:device_tokens(), Payload);
+    %     {error, Reason} ->
+    %         error_logger:error_report(Reason),
+    %         boss_flash:add(SessionID, error, "Error sending message", ""),
+    %         error
+    % end,
+    push_dispatcher:send_broadcast(App, Payload),
     {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 
 before_(_ActionName) ->
