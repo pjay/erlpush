@@ -11,10 +11,11 @@ sha1_hex(Salt, Password) ->
     [Hex|_] = io_lib:format("~40.16.0b", [HashedPassword]),
     Hex.
 
-require_login(SessionID) ->
+require_login(SessionID, Uri) ->
     case boss_session:get_session_data(SessionID, "user_id") of
         UserId when is_list(UserId) ->
             {ok, [{user_id, UserId}]};
         _ ->
+            boss_session:set_session_data(SessionID, "uri_before_login", Uri),
             {redirect, [{controller, "users"}, {action, "login"}]}
     end.

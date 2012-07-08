@@ -23,4 +23,4 @@ broadcast('POST', [AppId], ExtraInfo) ->
     {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 
 before_(_ActionName) ->
-    user_utils:require_login(SessionID).
+    user_utils:require_login(SessionID, Req:uri()).

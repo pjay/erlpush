@@ -48,7 +48,7 @@ edit('POST', [Id], ExtraInfo) ->
     end.
 
 before_(_ActionName) ->
-    user_utils:require_login(SessionID).
+    user_utils:require_login(SessionID, Req:uri()).
 
 find_app(Id, UserId) ->
     case boss_db:find(Id) of
