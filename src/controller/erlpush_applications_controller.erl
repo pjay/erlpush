@@ -4,12 +4,12 @@
 -default_action(index).
 
 index('GET', [], ExtraInfo) ->
-    {user_id, UserId} = ExtraInfo,
+    UserId = proplists:get_value(user_id, ExtraInfo),
     Apps = boss_db:find(app, [push_user_id = UserId]),
     {ok, [{apps, Apps}]}.
 
 show('GET', [Id], ExtraInfo) ->
-    {user_id, UserId} = ExtraInfo,
+    UserId = proplists:get_value(user_id, ExtraInfo),
     case boss_db:find(Id) of
         undefined ->
             not_found;
@@ -25,7 +25,7 @@ show('GET', [Id], ExtraInfo) ->
 create('GET', [], ExtraInfo) ->
     ok;
 create('POST', [], ExtraInfo) ->
-    {user_id, UserId} = ExtraInfo,
+    UserId = proplists:get_value(user_id, ExtraInfo),
     Name = Req:post_param("name"),
     CertFile = Req:post_files(),
     [{uploaded_file, _FileName, TempPath, _FileSize}] = CertFile,

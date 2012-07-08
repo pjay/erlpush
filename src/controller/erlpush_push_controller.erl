@@ -2,7 +2,7 @@
 -compile(export_all).
 
 broadcast('GET', [AppId], ExtraInfo) ->
-    {user_id, UserId} = ExtraInfo,
+    UserId = proplists:get_value(user_id, ExtraInfo),
     case boss_db:find(AppId) of
         undefined ->
             not_found;
@@ -19,24 +19,8 @@ broadcast('POST', [AppId], ExtraInfo) ->
     Message = Req:post_param("message"),
     Payload = [{aps,[{alert, list_to_binary(Message)}]}],
     push_dispatcher:start(),
-    % ex_apns:start(),
-    % CertFile = filename:join([code:priv_dir(erlpush), "certs", App:id() ++ ".pem"]),
-    % case ex_apns:start_link('apns_sender', development, CertFile) of
-    %     {ok, ApnsPid} ->
-    %         send_notification(ApnsPid, App:device_tokens(), Payload);
-    %     {error, {already_started, ApnsPid}} ->
-    %         send_notification(ApnsPid, App:device_tokens(), Payload);
-    %     {error, Reason} ->
-    %         error_logger:error_report(Reason),
-    %         boss_flash:add(SessionID, error, "Error sending message", ""),
-    %         error
-    % end,
     push_dispatcher:send_broadcast(App, Payload),
     {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 
 before_(_ActionName) ->
     user_utils:require_login(SessionID).
-
-send_notification(ApnsPid, DeviceTokens, Payload) ->
-    lists:map(fun(Token) -> ex_apns:send(ApnsPid, Token:value(), Payload) end, DeviceTokens),
-    boss_flash:add(SessionID, notice, "Message sent", "").

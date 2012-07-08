@@ -14,7 +14,7 @@ sha1_hex(Salt, Password) ->
 require_login(SessionID) ->
     case boss_session:get_session_data(SessionID, "user_id") of
         UserId when is_list(UserId) ->
-            {ok, {user_id, UserId}};
+            {ok, [{user_id, UserId}]};
         _ ->
             {redirect, [{controller, "users"}, {action, "login"}]}
     end.
