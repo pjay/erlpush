@@ -10,6 +10,13 @@
     <dd><input type="text" name="name" id="app_name"></dd>
     <dt><label for="app_certificate">PEM certificate</label></dt>
     <dd><input type="file" name="certificate" id="app_certificate"></dd>
+    <dt><label for="app_app_mode">Application mode</label></dt>
+    <dd>
+      <select name="app_mode" id="app_app_mode">
+        <option value="development">Development</option>
+        <option value="production">Production</option>
+      </select>
+    </dd>
     <dt><label for="app_debug_mode">Debug mode</label></dt>
     <dd><input type="checkbox" name="debug_mode" id="app_debug_mode" value="1"></dd>
     <dd><input type="submit" value="Create application"> or <a href="{% url action="index" %}">Cancel</a></dd>

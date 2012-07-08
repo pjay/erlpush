@@ -72,26 +72,26 @@ edit_app(App) ->
         {ok, SavedApp} ->
             case rename_certfile(SavedApp, Req:post_files()) of
                 ok ->
-                    boss_flash:add(SessionID, notice, "Application successfully edited", ""),
+                    boss_flash:add(SessionID, notice, "Application successfully updated", ""),
                     {redirect, [{action, "show"}, {id, App:id()}]};
                 {error, Reason} ->
-                    boss_flash:add(SessionID, error, "Error editing application", "cannot rename certificate file"),
-                    {redirect, [{action, "edit"}]}
+                    boss_flash:add(SessionID, error, "Error updating application", "cannot rename certificate file"),
+                    {redirect, [{action, "edit"}, {id, App:id()}]}
             end;
         {error, ErrorList} ->
-            lists:foreach(fun(Error) -> boss_flash:add(SessionID, error, "Error editing application", Error) end, ErrorList),
-            {redirect, [{action, "edit"}]}
+            lists:foreach(fun(Error) -> boss_flash:add(SessionID, error, "Error updating application", Error) end, ErrorList),
+            {redirect, [{action, "edit"}, {id, App:id()}]}
     end.
 
 params_to_proplist() ->
     Name = Req:post_param("name"),
-    error_logger:info_report(Req:post_param("debug_mode")),
+    AppMode = Req:post_param("app_mode"),
     DebugMode = case Req:post_param("debug_mode") of
         "1" -> true;
         "on" -> true;
         _   -> false
     end,
-    [{name, Name}, {debug_mode, DebugMode}].
+    [{name, Name}, {app_mode, AppMode}, {debug_mode, DebugMode}].
 
 rename_certfile(App, []) ->
     ok;

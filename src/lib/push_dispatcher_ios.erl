@@ -28,7 +28,7 @@ code_change(_OldVsn, StateName, StateData, _Extra) ->
 
 connecting(send, State = #state{app = App}) ->
     ex_apns:start(),
-    case ex_apns:start_link('apns_sender', development, App:cert_path()) of
+    case ex_apns:start_link('apns_sender', list_to_atom(App:app_mode()), App:cert_path()) of
         {ok, ApnsPid} ->
             error_logger:info_report("connected successfully"),
             gen_fsm:send_event(self(), send),
@@ -39,7 +39,6 @@ connecting(send, State = #state{app = App}) ->
             {next_state, sending, State#state{socket = ApnsPid}};
         {error, Reason} ->
             error_logger:error_report(Reason),
-            %boss_flash:add(SessionID, error, "Error sending message", ""),
             {stop, Reason, State}
     end;
 connecting(Event, State) ->
