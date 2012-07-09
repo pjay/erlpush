@@ -48,7 +48,8 @@ CREATE TABLE `device_tokens` (
   `app_id` int(11) NOT NULL,
   `value` varchar(64) NOT NULL,
   `last_registration_time` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_on_app_id_and_last_registration_time` (`app_id`,`last_registration_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

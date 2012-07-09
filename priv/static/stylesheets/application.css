@@ -1,3 +1,9 @@
+/* General styling */
+
+table thead {
+  font-weight: bold;
+}
+
 /* Flash messages */
 
 p.flash {
