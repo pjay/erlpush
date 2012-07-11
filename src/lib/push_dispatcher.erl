@@ -25,7 +25,11 @@ terminate(_Reason, _State) ->
 
 handle_call({send_broadcast, App, Payload}, _From, State) ->
     lists:map(fun(DeviceToken) -> create_notification(App, DeviceToken, Payload) end, App:device_tokens()),
-    push_dispatcher_ios:start(App),
+    WorkerName = list_to_atom("push_dispatcher_ios_" ++ App:id()),
+    case lists:member(WorkerName, registered()) of
+        true -> gen_fsm:send_event(WorkerName, send);
+        false -> push_dispatcher_ios:start(App)
+    end,
     {reply, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.

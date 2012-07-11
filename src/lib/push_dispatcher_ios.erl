@@ -14,7 +14,7 @@ start(App) ->
     push_dispatcher_ios_sup:start_child(App).
 
 start_link(App) ->
-    gen_fsm:start_link(?MODULE, [App], []).
+    gen_fsm:start_link({local, list_to_atom("push_dispatcher_ios_" ++ App:id())}, ?MODULE, [App], []).
 
 init([App]) ->
     gen_fsm:send_event(self(), send),
