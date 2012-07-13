@@ -1,0 +1,45 @@
+{% extends "templates/application.html" %}
+
+{% block title %}All events for {{ app.name }}{% endblock %}
+
+{% block body %}
+
+<h2>All events for {{ app.name }}</h2>
+
+{% if events %}
+  <table id="events" cellspacing="0" cellpadding="0">
+    <thead>
+      <tr>
+        <td>Date</td>
+        <td>Severity</td>
+        <td>Message</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+        <tr class="{{ event.severity_string }}">
+          <td>{{ event.creation_time|date:"d.m.Y H:i:s" }}</td>
+          <td>{{ event.severity_string|upper }}</td>
+          <td>{{ event.message }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p id="pagination">
+    {% if skip > 0 %}
+      <a href="{% url app_id=app.id skip=skip_previous %}" class="previous-page">&lt; Previous page</a>
+    {% endif %}
+    {% if has_next_page %}
+      <a href="{% url app_id=app.id skip=skip_next %}">Next page &gt;</a>
+    {% endif %}
+  </p>
+{% else %}
+  <p>No events recorded yet.</p>
+{% endif %}
+
+<p>
+  <a href="{% url controller="applications" action="show" id=app.id %}">Back to {{ app.name }}</a>
+</p>
+
+{% endblock %}

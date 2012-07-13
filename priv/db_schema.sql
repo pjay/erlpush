@@ -54,6 +54,24 @@ CREATE TABLE `device_tokens` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `events`
+--
+
+DROP TABLE IF EXISTS `events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_id` int(11) NOT NULL,
+  `creation_time` datetime NOT NULL,
+  `severity` tinyint(3) unsigned NOT NULL,
+  `message` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_on_app_id_creation_time_severity` (`app_id`,`creation_time`,`severity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `notifications`
 --
 

@@ -7,6 +7,7 @@
 -export([start/1, start_link/1]).
 -export([init/1, terminate/3, code_change/4]).
 -export([disconnected/2, connected/2]).
+-export([send_notifications/2]).
 
 -record(state, {app, socket, backoff_delay = 1}).
 
@@ -30,11 +31,11 @@ disconnected(send, State = #state{app = App, socket = Socket, backoff_delay = Ba
     ex_apns:start(),
     case ex_apns:start(list_to_atom("apns_sender_" ++ App:id()), list_to_atom(App:app_mode()), App:cert_path()) of
         {ok, ApnsPid} ->
-            %error_logger:info_report("connected"),
+            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS servers"}),
             gen_fsm:send_event(self(), send),
             {next_state, connected, State#state{socket = ApnsPid, backoff_delay = 1}};
         {error, {already_started, ApnsPid}} ->
-            %error_logger:info_report("connected (already started)"),
+            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS servers (reused existing connection)"}),
             gen_fsm:send_event(self(), send),
             {next_state, connected, State#state{socket = ApnsPid, backoff_delay = 1}};
         {error, Reason} ->
@@ -48,17 +49,19 @@ disconnected(Event, State) ->
     {next_state, disconnected, State}.
 
 connected(send, State = #state{app = App, socket = Socket}) ->
-    %error_logger:info_report("sending notifications"),
     Notifications = boss_db:find(notification, [app_id = App:id(), delivery_time = undefined]),
-    lists:map(fun(Notification) -> send_notification(Socket, Notification) end, Notifications),
-    %error_logger:info_report("notifications sent"),
+    {Time, _} = timer:tc(?MODULE, send_notifications, [Socket, Notifications]),
+    gen_event:notify(push_dispatcher_logger, {info, App:id(), "Sent ~p notifications in ~.3f seconds", [length(Notifications), Time/1000000]}),
     {next_state, connected, State, 3600 * 1000};  % timeout after 1 hour
-connected(timeout, State) ->
-    %error_logger:info_report("stopping fsm after timeout"),
+connected(timeout, State = #state{app = App}) ->
+    gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Stopping worker after timeout"}),
     {stop, normal, State};
 connected(Event, State) ->
     error_logger:error_report("unknown event ~p received in connected state - ignoring", [Event]),
     {next_state, connected, State}.
+
+send_notifications(Socket, Notifications) ->
+    lists:map(fun(Notification) -> send_notification(Socket, Notification) end, Notifications).
 
 send_notification(Socket, Notification) ->
     Token = Notification:device_token(),

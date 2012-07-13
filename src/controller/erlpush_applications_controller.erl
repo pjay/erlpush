@@ -57,7 +57,9 @@ find_app(Id, UserId) ->
             {error, "Error finding app", []};
         App ->
             case App:push_user_id() of
-                UserId -> {ok, [{app, App}]};
+                UserId ->
+                    Events = boss_db:find(event, [app_id = App:id()], 10, 0, creation_time, num_descending),
+                    {ok, [{app, App}, {events, Events}]};
                 _ -> not_found
             end
     end.

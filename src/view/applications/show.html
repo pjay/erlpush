@@ -3,6 +3,7 @@
 {% block title %}Create an application{% endblock %}
 
 {% block body %}
+
 <h2>{{ app.name }}</h2>
 <dl id="app-details">
   <dt>API key</dt>
@@ -14,14 +15,45 @@
   <dt>Debug mode</dt>
   <dd>{% if app.debug_mode %}Yes{% else %}No{% endif %}</dd>
 </dl>
+
 <h3>Statistics</h3>
 <p>
   Number of registered device tokens: {{ app.device_tokens | length }}
   (<a href="{% url controller="device_tokens" action="index" app_id=app.id %}">display device tokens</a>)
 </p>
+
 <h3>Actions</h3>
 <ul>
   <li><a href="{% url controller="push" action="broadcast" app_id=app.id %}">Send a broadcast notification</a></li>
   <li><a href="{% url action="edit" id=app.id %}">Edit this application</a></li>
 </ul>
+
+<h3>Latest events</h3>
+{% if events %}
+  <table id="events" cellspacing="0" cellpadding="0">
+    <thead>
+      <tr>
+        <td>Date</td>
+        <td>Severity</td>
+        <td>Message</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+        <tr class="{{ event.severity_string }}">
+          <td>{{ event.creation_time|date:"d.m.Y H:i:s" }}</td>
+          <td>{{ event.severity_string|upper }}</td>
+          <td>{{ event.message }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p>
+    <a href="{% url controller="events" action="index" app_id=app.id skip="0" %}">Display all events</a>
+  </p>
+{% else %}
+<p>No events recorded yet.</p>
+{% endif %}
+
 {% endblock %}

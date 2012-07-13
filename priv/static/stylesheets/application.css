@@ -40,6 +40,40 @@ dl#app-details dd {
   margin-left: 90px;
 }
 
+/* Events log */
+
+table#events {
+  width: 100%;
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+table#events td {
+  margin-bottom: 5px;
+  padding: 1px 3px;
+}
+
+table#events .critical {
+  background-color: black;
+  color: white;
+}
+
+table#events .error {
+  background-color: #ff8b8b;
+}
+
+table#events .warning {
+  background-color: #ffd28b;
+}
+
+table#events .info {
+  background-color: #eee;
+}
+
+table#events .debug {
+  background-color: white;
+}
+
 /* New application */
 
 form dl#new-app dt {
@@ -62,4 +96,10 @@ form dl#app-broadcast dt {
 form dl#app-broadcast dd {
   margin: 0 0 10px 90px;
   margin-left: 80px;
+}
+
+/* Pagination */
+
+#pagination .previous-page {
+  margin-right: 15px;
 }
