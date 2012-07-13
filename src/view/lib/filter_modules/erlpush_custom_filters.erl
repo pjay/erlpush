@@ -7,3 +7,6 @@
 %     lists:reverse(binary_to_list(Value)).
 %
 % "foo"|my_reverse   => "foo"
+
+localtime(DateTime) ->
+	calendar:universal_time_to_local_time(DateTime).

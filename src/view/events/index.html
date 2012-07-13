@@ -18,7 +18,7 @@
     <tbody>
       {% for event in events %}
         <tr class="{{ event.severity_string }}">
-          <td>{{ event.creation_time|date:"d.m.Y H:i:s" }}</td>
+          <td>{{ event.creation_time|localtime|date:"d.m.Y H:i:s" }}</td>
           <td>{{ event.severity_string|upper }}</td>
           <td>{{ event.message }}</td>
         </tr>
