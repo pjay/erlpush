@@ -31,15 +31,15 @@ disconnected(send, State = #state{app = App, socket = Socket, backoff_delay = Ba
     ex_apns:start(),
     case ex_apns:start(list_to_atom("apns_sender_" ++ App:id()), list_to_atom(App:app_mode()), App:cert_path()) of
         {ok, ApnsPid} ->
-            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS servers"}),
+            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS server"}),
             gen_fsm:send_event(self(), send),
             {next_state, connected, State#state{socket = ApnsPid, backoff_delay = 1}};
         {error, {already_started, ApnsPid}} ->
-            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS servers (reused existing connection)"}),
+            gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Connected to the APNS server (reused existing connection)"}),
             gen_fsm:send_event(self(), send),
             {next_state, connected, State#state{socket = ApnsPid, backoff_delay = 1}};
         {error, Reason} ->
-            error_logger:error_report(Reason),
+            gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot connect to the APNS server - will retry in ~p seconds", [BackoffDelay]}),
             gen_fsm:send_event_after(BackoffDelay * 1000, send),
             NewBackoffDelay = min(BackoffDelay * 2, 60),
             {next_state, disconnected, State#state{backoff_delay = NewBackoffDelay}}
