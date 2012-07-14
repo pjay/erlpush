@@ -30,8 +30,12 @@ device_tokens('DELETE', [TokenValue], ExtraInfo) ->
             case boss_db:find(device_token, [value = TokenValue]) of
                 Tokens when length(Tokens) > 0 ->
                     Token = hd(Tokens),
-                    boss_db:delete(Token:id()),
-                    {204, "", []};
+                    case boss_db:delete(Token:id()) of
+                        ok -> {204, "", []};
+                        {error, Reason} ->
+                            error_logger:error_msg("Cannot delete token from the database with reason ~p~n", [Reason]),
+                            {error, "", []}
+                    end;
                 _ ->
                     not_found
             end
