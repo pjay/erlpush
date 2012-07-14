@@ -1,4 +1,4 @@
--module(app, [Id, PushUserId::string(), Name::string(), ApiKey::string(), ApiSecret::string(), AppMode::string(), DebugMode::boolean()]).
+-module(app, [Id, PushUserId::string(), Name::string(), ApiKey::string(), ApiSecret::string(), MasterSecret::string(), AppMode::string(), DebugMode::boolean()]).
 -compile(export_all).
 
 -belongs_to(push_user).
@@ -7,12 +7,13 @@
 -has({events, many, [{sort_by, creation_time}, {sort_order, num_descending}]}).
 
 cert_path() ->
-	filename:join([code:priv_dir(erlpush), "certs", Id ++ ".pem"]).
+    filename:join([code:priv_dir(erlpush), "certs", Id ++ ".pem"]).
 
 before_create() ->
     NewKey = app_utils:generate_key(),
     NewSecret = app_utils:generate_secret(),
-    ModifiedRecord = set([{api_key, NewKey}, {api_secret, NewSecret}]),
+    NewMasterSecret = app_utils:generate_secret(),
+    ModifiedRecord = set([{api_key, NewKey}, {api_secret, NewSecret}, {master_secret, MasterSecret}]),
     {ok, ModifiedRecord}.
 
 validation_tests() ->

@@ -28,6 +28,7 @@ CREATE TABLE `apps` (
   `name` varchar(255) NOT NULL,
   `api_key` varchar(40) NOT NULL,
   `api_secret` varchar(40) NOT NULL,
+  `master_secret` varchar(40) NOT NULL,
   `app_mode` varchar(255) NOT NULL,
   `debug_mode` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
