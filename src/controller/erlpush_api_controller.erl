@@ -1,10 +1,10 @@
 -module(erlpush_api_controller, [Req]).
--compile(export_all).
 
-device_tokens('PUT', [TokenValue], ExtraInfo) ->
-    case proplists:get_value(app, ExtraInfo) of
-        undefined ->
-            result_invalid_key_or_secret();
+-export([device_tokens/2, push/2]).
+
+device_tokens('PUT', [TokenValue]) ->
+    case proplists:get_value(app, app_with_api_secret()) of
+        undefined -> result_invalid_key_or_secret();
         App ->
             case boss_db:find(device_token, [value = TokenValue]) of
                 Tokens when length(Tokens) > 0 ->
@@ -22,10 +22,9 @@ device_tokens('PUT', [TokenValue], ExtraInfo) ->
                     {400, hd(ErrorList), [{"Content-Type", "text/plain"}]}
             end
     end;
-device_tokens('DELETE', [TokenValue], ExtraInfo) ->
-    case proplists:get_value(app, ExtraInfo) of
-        undefined ->
-            result_invalid_key_or_secret();
+device_tokens('DELETE', [TokenValue]) ->
+    case proplists:get_value(app, app_with_api_secret()) of
+        undefined -> result_invalid_key_or_secret();
         App ->
             case boss_db:find(device_token, [value = TokenValue]) of
                 Tokens when length(Tokens) > 0 ->
@@ -41,19 +40,52 @@ device_tokens('DELETE', [TokenValue], ExtraInfo) ->
             end
     end.
 
-before_(_ActionName) ->
-    AuthHeader = Req:header("Authorization"),
-    [AuthType, EncodedAuth] = string:tokens(AuthHeader, " "),
-    DecodedAuth = base64:decode_to_string(EncodedAuth),
-    [AppKey, AppSecret] = string:tokens(DecodedAuth, ":"),
-    Results = boss_db:find(app, [api_key = AppKey, api_secret = AppSecret]),
-    case length(Results) of
-        1 ->
-            App = hd(Results),
-            {ok, [{app, App}]};
-        _ ->
-            {ok, []}
+push('POST', ["broadcast"]) ->
+    case proplists:get_value(app, app_with_master_secret()) of
+        undefined -> result_invalid_key_or_secret();
+        App -> send_broadcast(App)
+    end.
+
+app_with_api_secret() ->
+    app_with_secret_type(api_secret).
+
+app_with_master_secret() ->
+    app_with_secret_type(master_secret).
+
+app_with_secret_type(SecretType) ->
+    case Req:header("Authorization") of
+        undefined -> [];
+        AuthHeader ->
+            [AuthType, EncodedAuth] = string:tokens(AuthHeader, " "),
+            DecodedAuth = base64:decode_to_string(EncodedAuth),
+            [AppKey, AppSecret] = string:tokens(DecodedAuth, ":"),
+            Results = boss_db:find(app, [api_key = AppKey, SecretType = AppSecret]),
+            case length(Results) of
+                1 -> [{app, hd(Results)}];
+                _ -> []
+            end
     end.
 
 result_invalid_key_or_secret() ->
     {404, "Invalid application key or secret", [{"Content-Type", "text/plain"}]}.
+
+result_bad_request_with_message(Message) ->
+    {400, Message, [{"Content-Type", "text/plain"}]}.
+
+send_broadcast(App) ->
+    case Req:header(content_type) of
+        "application/json" ->
+            case Req:request_body() of
+                Binary when is_binary(Binary) ->
+                    case jsx:is_json(Binary) of
+                        true ->
+                            Json = jsx:json_to_term(Binary),
+                            push_dispatcher:start(),
+                            push_dispatcher:send_broadcast(App, Json),
+                            {200, "", []};
+                        false -> result_bad_request_with_message("Invalid JSON")
+                    end;
+                _ -> result_bad_request_with_message("Invalid content")
+            end;
+        undefined -> result_bad_request_with_message("Invalid content type")
+    end.
