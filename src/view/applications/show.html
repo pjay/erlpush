@@ -20,7 +20,7 @@
 
 <h3>Statistics</h3>
 <p>
-  Number of registered device tokens: {{ app.device_tokens | length }}
+  Number of iOS device tokens: {{ app.device_tokens | length }}
   (<a href="{% url controller="device_tokens" action="index" app_id=app.id %}">display device tokens</a>)
 </p>
 

@@ -48,10 +48,10 @@ li {margin:0; padding:0 0 0 5px;}
 #sidebar ul.sidemenu ul li a {padding:2px 0; margin:0; font-size:1.1em;}
 
 /* Content area */
-#content {text-align:left; padding:0; margin:0 0 15px 0; width:730px;}
+#content {text-align:left; padding:0; margin:0 0 15px 0; /*width:730px*/ width:950px;}
 #content img {margin:5px 0;}
 #feature {margin:0 0 20px 0;}
-.post {margin:0 0 20px 0; padding:15px 20px 0 20px; width:690px; line-height:1.7em; border:1px solid #dadada; background-color:#fff;}
+.post {margin:0 0 20px 0; padding:15px 20px 0 20px; /*width:690px*/ width:910px; line-height:1.7em; border:1px solid #dadada; background-color:#fff;}
 .postintro {width:70px; padding:4px; background-color:#f4f4f4; text-align:center; color:#777; font-size:1.1em; float:right; border:1px solid #dadada; margin:0 15px 10px 15px;}
 .postmeta {text-align:right; color:#666; padding:10px 0 0; border-top: 1px dotted #dadada; font-size:0.9em;}
 

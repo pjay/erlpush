@@ -19,16 +19,13 @@
 <div id="topmenu">
   <p>
     <strong class="hide">Main menu:</strong>
-    <a class="active" href="#">Page one</a><span class="hide"> | </span>
-    <a href="#">Page two</a><span class="hide"> | </span>
-    <a href="#">Page three</a><span class="hide"> | </span>
-    <a href="#">Page four</a><span class="hide"> | </span>
-    <a href="#">Page five</a>
+    <a class="active" href="{% url controller="applications" %}">My applications</a><span class="hide"> | </span>
+    <a href="{% url controller="users" action="logout" %}">Log out</a>
   </p>
 </div>
 
 <div id="wrap">
-  <div id="sidebar">
+  <!-- <div id="sidebar">
     <ul class="sidemenu">
       <li><a class="active" href="#">Active page</a></li>
       <li><a href="#">Link two</a></li>
@@ -49,7 +46,7 @@
       <li><a href="http://andreasviklund.com/wordpress-themes/">WordPress themes</a></li>
       <li><a href="http://www.svenskadomaner.se/order.asp?step=1&amp;ling=en&amp;ref=A">Domains and hosting</a></li>
     </ul>
-  </div>
+  </div> -->
 
   <div id="content">
     <div class="post">
