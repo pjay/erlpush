@@ -20,10 +20,10 @@ login('POST', []) ->
                 true ->
                     boss_session:set_session_data(SessionID, "user_id", User:id()),
                     case boss_session:get_session_data(SessionID, "uri_before_login") of
-                        Uri ->
+                        Uri when is_list(Uri) ->
                             boss_session:remove_session_data(SessionID, "uri_before_login"),
                             {redirect, Uri};
-                        {error, _Reason} -> {redirect, [{controller, "applications"}]}
+                        _ -> {redirect, [{controller, "applications"}]}
                     end;
                 false ->
                     boss_flash:add(SessionID, error, "Login failed", "Wrong username or password"),
