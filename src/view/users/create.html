@@ -3,11 +3,26 @@
 {% block title %}New user{% endblock %}
 
 {% block body %}
+
 <h2>New user</h2>
 <form method="POST">
-  <label>Email : <input type="text" name="email"></label><br>
-  <label>Password : <input type="password" name="password"></label><br>
-  <label>Confirm your password : <input type="password" name="password_confirmation"></label><br>
-  <input type="submit" value="Create user">
+  <dl id="users-create">
+    <dt>Email</dt>
+    <dd><input type="text" name="email"></dd>
+    <dt>Password</dt>
+    <dd><input type="password" name="password"></dd>
+    <dt>Confirm your password</dt>
+    <dd><input type="password" name="password_confirmation"></dd>
+    <dd><input type="submit" value="Create user"></dd>
+  </dl>
 </form>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $("input[type='text']:first", document.forms[0]).focus();
+});
+</script>
 {% endblock %}

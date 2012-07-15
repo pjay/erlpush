@@ -24,8 +24,18 @@ form dl#login dt {
   padding-top: 1px;
 }
 form dl#login dd {
-  margin: 0 0 10px 90px;
-  margin-left: 80px;
+  margin: 0 0 5px 90px;
+}
+
+/* Users creation */
+
+form dl#users-create dt {
+  float: left;
+  width: 150px;
+  padding-top: 1px;
+}
+form dl#users-create dd {
+  margin: 0 0 5px 150px;
 }
 
 /* Application details */
@@ -33,11 +43,9 @@ form dl#login dd {
 dl#app-details dt {
   float: left;
   width: 130px;
-  padding-top: 1px;
 }
 dl#app-details dd {
-  margin: 0 0 1px 100px;
-  margin-left: 90px;
+  margin: 0 0 2px 100px;
 }
 
 /* Events log */
@@ -82,8 +90,7 @@ form dl#new-app dt {
   padding-top: 1px;
 }
 form dl#new-app dd {
-  margin: 0 0 10px 130px;
-  margin-left: 120px;
+  margin: 0 0 5px 130px;
 }
 
 /* Application broadcast */
