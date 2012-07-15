@@ -48,6 +48,14 @@ dl#app-details dd {
   margin: 0 0 2px 100px;
 }
 
+dl#app-stats dt {
+  float: left;
+  width: 220px;
+}
+dl#app-stats dd {
+  margin: 0 0 2px 220px;
+}
+
 /* Events log */
 
 table#events {

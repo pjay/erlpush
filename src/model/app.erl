@@ -3,6 +3,7 @@
 
 -belongs_to(push_user).
 -has({device_tokens, many}).
+-has({registrations, many}).
 -has({notifications, many}).
 -has({events, many, [{sort_by, creation_time}, {sort_order, num_descending}]}).
 

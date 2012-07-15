@@ -19,10 +19,12 @@
 </dl>
 
 <h3>Statistics</h3>
-<p>
-  Number of iOS device tokens: {{ app.device_tokens | length }}
-  (<a href="{% url controller="device_tokens" action="index" app_id=app.id %}">display device tokens</a>)
-</p>
+<dl id="app-stats">
+  <dt>Number of iOS device tokens</dt>
+  <dd>{{ app.device_tokens | length }} (<a href="{% url controller="device_tokens" action="index" app_id=app.id %}">display all</a>)</dd>
+  <dt>Number of Android registrations</dt>
+  <dd>{{ app.registrations | length }} (<a href="{% url controller="registrations" action="index" app_id=app.id %}">display all</a>)</dd>
+</dl>
 
 <h3>Actions</h3>
 <ul>

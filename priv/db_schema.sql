@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS `apps`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `apps` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `push_user_id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `push_user_id` int(11) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
   `api_key` varchar(40) NOT NULL,
   `api_secret` varchar(40) NOT NULL,
@@ -45,8 +45,8 @@ DROP TABLE IF EXISTS `device_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `device_tokens` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `app_id` int(11) unsigned NOT NULL,
   `value` varchar(64) NOT NULL,
   `last_registration_time` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -62,8 +62,8 @@ DROP TABLE IF EXISTS `events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `events` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `app_id` int(11) unsigned NOT NULL,
   `creation_time` datetime NOT NULL,
   `severity` tinyint(3) unsigned NOT NULL,
   `message` text NOT NULL,
@@ -81,8 +81,8 @@ DROP TABLE IF EXISTS `notifications`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `notifications` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `app_id` int(11) NOT NULL,
-  `device_token_id` int(11) NOT NULL,
+  `app_id` int(11) unsigned NOT NULL,
+  `device_token_id` int(11) unsigned NOT NULL,
   `payload` blob NOT NULL,
   `creation_time` datetime NOT NULL,
   `delivery_time` datetime DEFAULT NULL,
@@ -98,12 +98,28 @@ DROP TABLE IF EXISTS `push_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `push_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `salt` varchar(40) NOT NULL,
   `hashed_password` varchar(40) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `registrations`
+--
+
+DROP TABLE IF EXISTS `registrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `registrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `app_id` int(10) unsigned NOT NULL,
+  `value` varchar(255) NOT NULL,
+  `last_registration_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -115,7 +131,7 @@ DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

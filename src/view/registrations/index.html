@@ -1,28 +1,28 @@
 {% extends "templates/application.html" %}
 
-{% block title %}iOS device tokens for {{ app.name }}{% endblock %}
+{% block title %}Android registrations for {{ app.name }}{% endblock %}
 
 {% block body %}
-<h2>iOS device tokens for {{ app.name }}</h2>
-{% if device_tokens %}
+<h2>Android registrations for {{ app.name }}</h2>
+{% if registrations %}
   <table>
     <thead>
       <tr>
-        <td>Device token</td>
+        <td>Registration ID</td>
         <td>Last registration time</td>
       </tr>
     </thead>
     <tbody>
-      {% for device_token in device_tokens %}
+      {% for registration in registrations %}
         <tr>
-          <td>{{ device_token.value|upper }}</td>
-          <td>{{ device_token.last_registration_time|timesince }}</td>
+          <td>{{ registration.value|upper }}</td>
+          <td>{{ registration.last_registration_time|timesince }}</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
 {% else %}
-  <p>No device tokens registered yet.</p>
+  <p>No registrations registered yet.</p>
 {% endif %}
 
 <p>
