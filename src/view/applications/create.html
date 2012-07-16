@@ -8,17 +8,19 @@
   <dl id="new-app">
     <dt><label for="app_name">Name</label></dt>
     <dd><input type="text" name="name" id="app_name"></dd>
-    <dt><label for="app_certificate">PEM certificate</label></dt>
+    <dt><label for="app_certificate">iOS PEM certificate</label></dt>
     <dd><input type="file" name="certificate" id="app_certificate"></dd>
-    <dt><label for="app_app_mode">Application mode</label></dt>
+    <dt><label for="app_app_mode">iOS application mode</label></dt>
     <dd>
       <select name="app_mode" id="app_app_mode">
         <option value="development">Development</option>
         <option value="production">Production</option>
       </select>
     </dd>
-    <dt><label for="app_debug_mode">Debug mode</label></dt>
+    <dt><label for="app_debug_mode">iOS debug mode</label></dt>
     <dd><input type="checkbox" name="debug_mode" id="app_debug_mode" value="1"></dd>
+    <dt><label for="app_gcm_api_key">Android GCM API Key</label></dt>
+    <dd><input type="text" name="gcm_api_key" id="app_gcm_api_key"></dd>
     <dd><input type="submit" value="Create application"> or <a href="{% url action="index" %}">Cancel</a></dd>
   </dl>
 </form>

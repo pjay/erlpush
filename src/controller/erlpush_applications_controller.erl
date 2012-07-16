@@ -93,7 +93,8 @@ params_to_proplist() ->
         "on" -> true;
         _   -> false
     end,
-    [{name, Name}, {app_mode, AppMode}, {debug_mode, DebugMode}].
+    GcmApiKey = Req:post_param("gcm_api_key"),
+    [{name, Name}, {app_mode, AppMode}, {debug_mode, DebugMode}, {gcm_api_key, GcmApiKey}].
 
 rename_certfile(App, []) ->
     ok;

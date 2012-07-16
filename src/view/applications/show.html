@@ -12,10 +12,12 @@
   <dd>{{ app.api_secret }}</dd>
   <dt>Master secret</dt>
   <dd>{{ app.master_secret }}</dd>
-  <dt>Application mode</dt>
+  <dt>iOS application mode</dt>
   <dd>{{ app.app_mode|capfirst }}</dd>
-  <dt>Debug mode</dt>
+  <dt>iOS debug mode</dt>
   <dd>{% if app.debug_mode %}Yes{% else %}No{% endif %}</dd>
+  <dt>Android GCM API Key</dt>
+  <dd>{{ app.gcm_api_key|default:"None" }}</dd>
 </dl>
 
 <h3>Statistics</h3>

@@ -42,10 +42,10 @@ form dl#users-create dd {
 
 dl#app-details dt {
   float: left;
-  width: 130px;
+  width: 160px;
 }
 dl#app-details dd {
-  margin: 0 0 2px 100px;
+  margin: 0 0 2px 160px;
 }
 
 dl#app-stats dt {
@@ -94,11 +94,11 @@ table#events .debug {
 
 form dl#new-app dt {
   float: left;
-  width: 120px;
+  width: 160px;
   padding-top: 1px;
 }
 form dl#new-app dd {
-  margin: 0 0 5px 130px;
+  margin: 0 0 5px 160px;
 }
 
 /* Application broadcast */

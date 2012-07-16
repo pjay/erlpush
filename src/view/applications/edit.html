@@ -1,24 +1,26 @@
 {% extends "templates/application.html" %}
 
-{% block title %}Edit application {{ app.name }}{% endblock %}
+{% block title %}Edit {{ app.name }}{% endblock %}
 
 {% block body %}
-<h2>Edit application {{ app.name }}</h2>
+<h2>Edit {{ app.name }}</h2>
 <form method="POST" enctype="multipart/form-data">
   <dl id="new-app">
     <dt><label for="app_name">Name</label></dt>
     <dd><input type="text" name="name" id="app_name" value="{{ app.name }}"></dd>
-    <dt><label for="app_certificate">PEM certificate</label></dt>
+    <dt><label for="app_certificate">iOS PEM certificate</label></dt>
     <dd><input type="file" name="certificate" id="app_certificate"></dd>
-    <dt><label for="app_app_mode">Application mode</label></dt>
+    <dt><label for="app_app_mode">iOS application mode</label></dt>
     <dd>
       <select name="app_mode" id="app_app_mode">
         <option value="development"{% if app.app_mode == "develpment"%} selected="selected"{% endif %}>Development</option>
         <option value="production"{% if app.app_mode == "production"%} selected="selected"{% endif %}>Production</option>
       </select>
     </dd>
-    <dt><label for="app_debug_mode">Debug mode</label></dt>
+    <dt><label for="app_debug_mode">iOS debug mode</label></dt>
     <dd><input type="checkbox" name="debug_mode" id="app_debug_mode" {% if app.debug_mode %}checked="checked"{% endif %}></dd>
+    <dt><label for="app_gcm_api_key">Android GCM API Key</label></dt>
+    <dd><input type="text" name="gcm_api_key" id="app_gcm_api_key" value="{{ app.gcm_api_key }}"></dd>
     <dd><input type="submit" value="Edit application"> or <a href="{% url action="show" id=app.id %}">Cancel</a></dd>
   </dl>
 </form>

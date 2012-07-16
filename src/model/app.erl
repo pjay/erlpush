@@ -1,4 +1,4 @@
--module(app, [Id, PushUserId::string(), Name::string(), ApiKey::string(), ApiSecret::string(), MasterSecret::string(), AppMode::string(), DebugMode::boolean()]).
+-module(app, [Id, PushUserId::string(), Name::string(), ApiKey::string(), ApiSecret::string(), MasterSecret::string(), AppMode::string(), DebugMode::boolean(), GcmApiKey::string()]).
 -compile(export_all).
 
 -belongs_to(push_user).

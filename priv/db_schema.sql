@@ -31,6 +31,7 @@ CREATE TABLE `apps` (
   `master_secret` varchar(40) NOT NULL,
   `app_mode` varchar(255) NOT NULL,
   `debug_mode` tinyint(1) NOT NULL,
+  `gcm_api_key` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `key` (`api_key`),
   KEY `push_user_id` (`push_user_id`)
