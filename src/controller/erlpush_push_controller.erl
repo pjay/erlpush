@@ -17,7 +17,7 @@ broadcast('GET', [AppId], ExtraInfo) ->
 broadcast('POST', [AppId], ExtraInfo) ->
     App = boss_db:find(AppId),
     Message = Req:post_param("message"),
-    Payload = [{aps,[{alert, list_to_binary(Message)}]}],
+    Payload = [{<<"aps">>,[{<<"alert">>, list_to_binary(Message)}]}],
     push_dispatcher:start(),
     push_dispatcher:send_broadcast(App, Payload),
     boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),

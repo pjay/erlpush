@@ -1,44 +1,16 @@
 -module(erlpush_api_controller, [Req]).
 
--export([device_tokens/2, push/2]).
+-export([device_tokens/2, registrations/2, push/2]).
 
 device_tokens('PUT', [TokenValue]) ->
-    case proplists:get_value(app, app_with_api_secret()) of
-        undefined -> result_invalid_key_or_secret();
-        App ->
-            case boss_db:find(device_token, [value = TokenValue]) of
-                Tokens when length(Tokens) > 0 ->
-                    Token = hd(Tokens),
-                    NewToken = Token:set(last_registration_time, calendar:universal_time()),
-                    StatusCode = 200;
-                _ ->
-                    NewToken = boss_record:new(device_token, [{app_id, App:id()}, {value, TokenValue}, {last_registration_time, calendar:universal_time()}]),
-                    StatusCode = 201
-            end,
-            case NewToken:save() of
-                {ok, SavedToken} ->
-                    {StatusCode, "", []};
-                {error, ErrorList} ->
-                    {400, hd(ErrorList), [{"Content-Type", "text/plain"}]}
-            end
-    end;
+    put_device_token_or_registration(device_token, TokenValue);
 device_tokens('DELETE', [TokenValue]) ->
-    case proplists:get_value(app, app_with_api_secret()) of
-        undefined -> result_invalid_key_or_secret();
-        App ->
-            case boss_db:find(device_token, [value = TokenValue]) of
-                Tokens when length(Tokens) > 0 ->
-                    Token = hd(Tokens),
-                    case boss_db:delete(Token:id()) of
-                        ok -> {204, "", []};
-                        {error, Reason} ->
-                            error_logger:error_msg("Cannot delete token from the database with reason ~p~n", [Reason]),
-                            {error, "", []}
-                    end;
-                _ ->
-                    not_found
-            end
-    end.
+    delete_device_token_or_registration(device_token, TokenValue).
+
+registrations('PUT', [RegistrationId]) ->
+    put_device_token_or_registration(registration, RegistrationId);
+registrations('DELETE', [RegistrationId]) ->
+    delete_device_token_or_registration(registration, RegistrationId).
 
 push('POST', ["broadcast"]) ->
     case proplists:get_value(app, app_with_master_secret()) of
@@ -71,6 +43,45 @@ result_invalid_key_or_secret() ->
 
 result_bad_request_with_message(Message) ->
     {400, Message, [{"Content-Type", "text/plain"}]}.
+
+put_device_token_or_registration(Type, Value) ->
+    case proplists:get_value(app, app_with_api_secret()) of
+        undefined -> result_invalid_key_or_secret();
+        App ->
+            case boss_db:find(Type, [value = Value]) of
+                Records when length(Records) > 0 ->
+                    Record = hd(Records),
+                    NewRecord = Record:set(last_registration_time, calendar:universal_time()),
+                    StatusCode = 200;
+                _ ->
+                    NewRecord = boss_record:new(Type, [{app_id, App:id()}, {value, Value}, {last_registration_time, calendar:universal_time()}]),
+                    StatusCode = 201
+            end,
+            case NewRecord:save() of
+                {ok, SavedRecord} ->
+                    {StatusCode, "", []};
+                {error, ErrorList} ->
+                    {400, hd(ErrorList), [{"Content-Type", "text/plain"}]}
+            end
+    end.
+
+delete_device_token_or_registration(Type, Value) ->
+    case proplists:get_value(app, app_with_api_secret()) of
+        undefined -> result_invalid_key_or_secret();
+        App ->
+            case boss_db:find(Type, [value = Value]) of
+                Records when length(Records) > 0 ->
+                    Record = hd(Records),
+                    case boss_db:delete(Record:id()) of
+                        ok -> {204, "", []};
+                        {error, Reason} ->
+                            error_logger:error_msg("Cannot delete device token or registration from the database with reason ~p~n", [Reason]),
+                            {error, "", []}
+                    end;
+                _ ->
+                    not_found
+            end
+    end.
 
 send_broadcast(App) ->
     case Req:header(content_type) of
