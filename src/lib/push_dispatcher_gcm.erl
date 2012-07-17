@@ -40,7 +40,7 @@ idle(send, State = #state{app = App}) ->
         {ok, Pid} ->
             send_request(State#state{httpc_pid = Pid});
         {error, {already_started, Pid}} ->
-            send_request(State#state{https_pid = Pid});
+            send_request(State#state{httpc_pid = Pid});
         {error, Reason} ->
             error_logger:error_msg("Cannot start httpc with reason ~p~n", [Reason]),
             {stop, cannot_start_httpc, State}
