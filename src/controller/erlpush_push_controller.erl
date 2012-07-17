@@ -17,9 +17,11 @@ broadcast('GET', [AppId], ExtraInfo) ->
 broadcast('POST', [AppId], ExtraInfo) ->
     App = boss_db:find(AppId),
     Message = Req:post_param("message"),
-    Payload = [{<<"aps">>,[{<<"alert">>, list_to_binary(Message)}]}],
     push_dispatcher:start(),
-    push_dispatcher:send_broadcast_ios(App, Payload),
+    % IosPayload = [{<<"aps">>,[{<<"alert">>, list_to_binary(Message)}]}],
+    % push_dispatcher:send_broadcast_ios(App, IosPayload),
+    GcmPayload = [{<<"message">>,list_to_binary(Message)}],
+    push_dispatcher:send_broadcast_gcm(App, GcmPayload),
     boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),
     {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 
