@@ -13,5 +13,6 @@ start_link() ->
 init([]) ->
     DispatcherSpec = {push_dispatcher, {push_dispatcher, start_link, []}, permanent, 5000, worker, [push_dispatcher]},
     IosSupSpec = {push_dispatcher_ios_sup, {push_dispatcher_ios_sup, start_link, []}, permanent, 5000, supervisor, [push_dispatcher_ios_sup]},
+    GcmSupSpec = {push_dispatcher_gcm_sup, {push_dispatcher_gcm_sup, start_link, []}, permanent, 5000, supervisor, [push_dispatcher_gcm_sup]},
     DbLoggerSpec = {push_dispatcher_logger_db, {push_dispatcher_logger_db, start_link, []}, permanent, 5000, worker, dynamic},
-    {ok, {{one_for_one, 10, 10}, [DispatcherSpec, IosSupSpec, DbLoggerSpec]}}.
+    {ok, {{one_for_one, 10, 10}, [DispatcherSpec, IosSupSpec, GcmSupSpec, DbLoggerSpec]}}.

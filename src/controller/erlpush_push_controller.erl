@@ -19,7 +19,7 @@ broadcast('POST', [AppId], ExtraInfo) ->
     Message = Req:post_param("message"),
     Payload = [{<<"aps">>,[{<<"alert">>, list_to_binary(Message)}]}],
     push_dispatcher:start(),
-    push_dispatcher:send_broadcast(App, Payload),
+    push_dispatcher:send_broadcast_ios(App, Payload),
     boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),
     {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
 

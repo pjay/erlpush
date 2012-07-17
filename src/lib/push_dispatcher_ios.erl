@@ -63,8 +63,11 @@ connected(Event, State) ->
 send_notifications(Socket, Notifications) ->
     lists:map(fun(Notification) -> send_notification(Socket, Notification) end, Notifications).
 
+%% @todo Handle ex_apns and DB errors
 send_notification(Socket, Notification) ->
     Token = Notification:device_token(),
-    ex_apns:send(Socket, Token:value(), binary_to_term(Notification:payload())),
-    ModifiedNotification = Notification:set(delivery_time, calendar:universal_time()),
-    ModifiedNotification:save().
+    boss_db:transaction(fun() ->
+        ModifiedNotification = Notification:set(delivery_time, calendar:universal_time()),
+        ModifiedNotification:save(),
+        ex_apns:send(Socket, Token:value(), binary_to_term(Notification:payload()))
+    end).
