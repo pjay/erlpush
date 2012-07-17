@@ -16,14 +16,27 @@ broadcast('GET', [AppId], ExtraInfo) ->
     end;
 broadcast('POST', [AppId], ExtraInfo) ->
     App = boss_db:find(AppId),
-    Message = Req:post_param("message"),
     push_dispatcher:start(),
-    % IosPayload = [{<<"aps">>,[{<<"alert">>, list_to_binary(Message)}]}],
-    % push_dispatcher:send_broadcast_ios(App, IosPayload),
-    GcmPayload = [{<<"message">>,list_to_binary(Message)}],
-    push_dispatcher:send_broadcast_gcm(App, GcmPayload),
-    boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),
-    {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]}.
+    case Req:post_param("type") of
+        "ios" ->
+            push_dispatcher:send_broadcast_ios(App, broadcast_payload_ios()),
+            boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),
+            {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]};
+        "gcm" ->
+            push_dispatcher:send_broadcast_gcm(App, broadcast_payload_gcm()),
+            boss_flash:add(SessionID, notice, "The broadcast notification is being sent", ""),
+            {redirect, [{controller, "applications"}, {action, "show"}, {id, AppId}]};
+        _ ->
+            boss_flash:add(SessionID, error, "Bad request", "the 'type' field doesn't contain a valid value"),
+            {redirect, [{controller, "push"}, {action, "broadcast"}, {id, AppId}]}
+    end.
 
 before_(_ActionName) ->
     user_utils:require_login(SessionID, Req:uri()).
+
+broadcast_payload_ios() ->
+    Alert = Req:post_param("alert"),
+    [{<<"aps">>,[{<<"alert">>, list_to_binary(Alert)}]}].
+
+broadcast_payload_gcm() ->
+    [{<<"message">>,list_to_binary(<<"test">>)}].

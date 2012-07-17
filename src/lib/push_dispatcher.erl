@@ -35,11 +35,11 @@ handle_call({send_broadcast_gcm, App, Payload}, _From, State) ->
     Messages = lists:foldl(fun(Reg, Acc) ->
         case create_message(App, Reg, Payload) of
             undefined -> Acc;
-            Message -> lists:append(Acc, [Message])
+            Message -> [Message | Acc]
         end
     end, [], App:registrations()),
     %% @todo Split the Messages list by slices of 1000 elements and start a worker for each slice
-    push_dispatcher_gcm:start(App, Messages),
+    push_dispatcher_gcm:start(App, lists:reverse(Messages)),
     {reply, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
