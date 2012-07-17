@@ -74,7 +74,7 @@ process_result({{_HTTPVersion, 200, _Status}, Headers, Body}, Time, State = #sta
     CanonicalIDs = proplists:get_value(<<"canonical_ids">>, Response),
     case Failure =:= 0 andalso CanonicalIDs =:= 0 of
         true ->
-            % No need to further interpret the response, mark all messages as sent and stop
+            % No need to further interpret the response, mark all messages as delivered and stop
             lists:foreach(fun(Msg) ->
                 ModifiedMsg = Msg:set(delivery_time, calendar:universal_time()),
                 ModifiedMsg:save()

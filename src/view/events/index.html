@@ -10,16 +10,16 @@
   <table id="events" cellspacing="0" cellpadding="0">
     <thead>
       <tr>
-        <td>Date</td>
-        <td>Severity</td>
+        <td class="col1">Date</td>
+        <td class="col2">Severity</td>
         <td>Message</td>
       </tr>
     </thead>
     <tbody>
       {% for event in events %}
         <tr class="{{ event.severity_string }}">
-          <td>{{ event.creation_time|localtime|date:"d.m.Y H:i:s" }}</td>
-          <td>{{ event.severity_string|upper }}</td>
+          <td class="col1">{{ event.creation_time|localtime|date:"d.m.Y H:i:s" }}</td>
+          <td class="col2">{{ event.severity_string|upper }}</td>
           <td>{{ event.message }}</td>
         </tr>
       {% endfor %}

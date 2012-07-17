@@ -34,9 +34,27 @@ broadcast('POST', [AppId], ExtraInfo) ->
 before_(_ActionName) ->
     user_utils:require_login(SessionID, Req:uri()).
 
+%% @todo Data validation
 broadcast_payload_ios() ->
-    Alert = Req:post_param("alert"),
-    [{<<"aps">>,[{<<"alert">>, list_to_binary(Alert)}]}].
+    Badge = string:strip(Req:post_param("badge")),
+    BadgeInt = case string:to_integer(Badge) of
+        {Int, Rest} when is_integer(Int) -> Int;
+        {error, _Reason} -> undefined
+    end,
+    AlertBin = case string:strip(Req:post_param("alert")) of
+        Alert when length(Alert) > 0 -> list_to_binary(Alert);
+        _ -> undefined
+    end,
+    SoundBin = case string:strip(Req:post_param("sound")) of
+        Sound when length(Sound) > 0 -> list_to_binary(Sound);
+        _ -> undefined
+    end,
+    RawAPSPayload = [{<<"badge">>, BadgeInt}, {<<"alert">>, AlertBin}, {<<"sound">>, SoundBin}],
+    APSPayload = lists:filter(fun({Key, Value}) -> Value =/= undefined end, RawAPSPayload),
+    [{<<"aps">>, APSPayload}].
 
+%% @todo Data validation
 broadcast_payload_gcm() ->
-    [{<<"message">>,list_to_binary(<<"test">>)}].
+    Key = string:strip(Req:post_param("extra_key")),
+    Value = string:strip(Req:post_param("extra_value")),
+    [{list_to_binary(Key),list_to_binary(Value)}].

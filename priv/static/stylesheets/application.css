@@ -69,6 +69,13 @@ table#events td {
   padding: 1px 3px;
 }
 
+table#events td.col1 {
+  width: 130px;
+}
+table#events td.col2 {
+  width: 70px;
+}
+
 table#events .critical {
   background-color: black;
   color: white;
