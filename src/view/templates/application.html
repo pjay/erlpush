@@ -5,7 +5,7 @@
   <meta name="author" content="Philippe Jayet" />
   <link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/variant-light.css" title="Variant Light" media="screen,projection" />
   <link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/application.css" />
-  <link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/jquery-ui-theme-smoothness.css" />
+  {% block stylesheets %}{% endblock %}
   <title>erlpush - {% block title %}{% endblock %}</title>
 </head>
 

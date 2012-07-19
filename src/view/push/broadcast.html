@@ -1,42 +1,56 @@
 {% extends "templates/application.html" %}
 
+{% block stylesheets%}
+<link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/jquery-ui-theme-smoothness.css" />
+<link rel="stylesheet" type="text/css" href="{{ _base_url }}/static/stylesheets/jquery-ui-theme-tabs-customized.css" />
+{% endblock %}
+
 {% block title %}Send a broadcast notification{% endblock %}
 
 {% block body %}
+
 <h2>Send a broadcast notification</h2>
 
-<div id="tabs">
+<div id="tabs-min">
   <ul>
     <li><a href="#fragment-1">iOS</a></li>
     <li><a href="#fragment-2">Android</a></li>
   </ul>
   <div id="fragment-1">
-    <p>The message will be sent to {{ app.device_tokens | length }} iOS users.</p>
-    <form method="POST">
-      <input type="hidden" name="type" value="ios">
-      <dl id="app-broadcast">
-        <dt><label for="broadcast_badge">Badge</label></dt>
-        <dd><input type="text" name="badge" id="broadcast_badge"></dd>
-        <dt><label for="broadcast_alert">Alert</label></dt>
-        <dd><input type="text" name="alert" id="broadcast_alert"></dd>
-        <dt><label for="broadcast_sound">Sound</label></dt>
-        <dd><input type="text" name="sound" id="broadcast_sound"></dd>
-        <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=app.id %}">Cancel</a></dd>
-      </dl>
-    </form>
+    {% if app.ios_enabled %}
+      <p>The message will be sent to {{ app.device_tokens | length }} iOS users.</p>
+      <form method="POST">
+        <input type="hidden" name="type" value="ios">
+        <dl id="app-broadcast">
+          <dt><label for="broadcast_badge">Badge</label></dt>
+          <dd><input type="text" name="badge" id="broadcast_badge"></dd>
+          <dt><label for="broadcast_alert">Alert</label></dt>
+          <dd><input type="text" name="alert" id="broadcast_alert"></dd>
+          <dt><label for="broadcast_sound">Sound</label></dt>
+          <dd><input type="text" name="sound" id="broadcast_sound"></dd>
+          <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=app.id %}">Cancel</a></dd>
+        </dl>
+      </form>
+    {% else %}
+      <p>Push notifications are disabled for the iOS platform. Please verify the certificate and its validity.</p>
+    {% endif %}
   </div>
   <div id="fragment-2">
-    <p>The message will be sent to {{ app.registrations | length }} Android users.</p>
-    <form method="POST">
-      <input type="hidden" name="type" value="gcm">
-      <dl id="app-broadcast">
-        <dt><label for="broadcast_extra_key">Extra key</label></dt>
-        <dd><input type="text" name="extra_key" id="broadcast_extra_key"></dd>
-        <dt><label for="broadcast_extra_value">Extra value</label></dt>
-        <dd><input type="text" name="extra_value" id="broadcast_extra_value"></dd>
-        <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=app.id %}">Cancel</a></dd>
-      </dl>
-    </form>
+    {% if app.gcm_enabled %}
+      <p>The message will be sent to {{ app.registrations | length }} Android users.</p>
+      <form method="POST">
+        <input type="hidden" name="type" value="gcm">
+        <dl id="app-broadcast">
+          <dt><label for="broadcast_extra_key">Extra key</label></dt>
+          <dd><input type="text" name="extra_key" id="broadcast_extra_key"></dd>
+          <dt><label for="broadcast_extra_value">Extra value</label></dt>
+          <dd><input type="text" name="extra_value" id="broadcast_extra_value"></dd>
+          <dd><input type="submit" value="Send broadcast"> or <a href="{% url controller="applications" action="show" id=app.id %}">Cancel</a></dd>
+        </dl>
+      </form>
+    {% else %}
+      <p>Push notifications are disabled for the Android platform. Please verify the GCM API Key.</p>
+    {% endif %}
   </div>
 </div>
 
@@ -45,7 +59,7 @@
 {% block javascript %}
 
 <script type="text/javascript">
-$("#tabs").tabs();
+$("#tabs-min").tabs();
 </script>
 
 {% endblock %}
