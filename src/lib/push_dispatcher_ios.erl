@@ -9,6 +9,8 @@
 -export([disconnected/2, connected/2]).
 -export([send_notifications/2]).
 
+-define(MAX_BACKOFF_DELAY, 60).
+
 -record(state, {app, socket, backoff_delay = 1}).
 
 start(App) ->
@@ -41,7 +43,7 @@ disconnected(send, State = #state{app = App, socket = Socket, backoff_delay = Ba
         {error, Reason} ->
             gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot connect to the APNS server - will retry in ~p seconds", [BackoffDelay]}),
             gen_fsm:send_event_after(BackoffDelay * 1000, send),
-            NewBackoffDelay = min(BackoffDelay * 2, 60),
+            NewBackoffDelay = min(BackoffDelay * 2, ?MAX_BACKOFF_DELAY),
             {next_state, disconnected, State#state{backoff_delay = NewBackoffDelay}}
     end;
 disconnected(Event, State) ->

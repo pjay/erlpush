@@ -11,8 +11,9 @@
 -define(API_ENDPOINT, "https://android.googleapis.com/gcm/send").
 -define(CONNECT_TIMEOUT, 30 * 1000).
 -define(REQUEST_TIMEOUT, 60 * 1000).
+-define(MAX_BACKOFF_DELAY, 60 * 1000).
 
--record(state, {app, messages, httpc_pid = undefined}).
+-record(state, {app, messages, httpc_pid = undefined, backoff_delay = 1}).
 
 start(App, Messages) ->
     push_dispatcher_gcm_sup:start_child(App, Messages).
@@ -89,40 +90,59 @@ process_result({{_HTTPVersion, 200, _Status}, Headers, Body}, Time, State = #sta
                     {next_state, idle, State#state{messages = UnsentMessages}};
                 _ -> {stop, normal, State}
             end
+            %% @todo Logging
     end;
-process_result({{_HTTPVersion, 400, _Status}, Headers, _Body}, _Time, State) ->
+process_result({{_HTTPVersion, 400, _Status}, Headers, Body}, _Time, State) ->
     % Invalid JSON format or invalid fields
-    %% @todo Write me
+    error_logger:error_msg("HTTP Status Code 400 received from GCM server~n~p~n~p~n", [Headers, Body]),
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Invalid request (JSON format or invalid fields) - please contact the developer"}),
     {stop, normal, State};
-process_result({{_HTTPVersion, 401, _Status}, Headers, _Body}, _Time, State) ->
-    % Error authenticating the sender account
-    %% @todo Write me
+process_result({{_HTTPVersion, 401, _Status}, Headers, Body}, _Time, State = #state{app = App}) ->
+    % Authentication error
+    error_logger:error_msg("HTTP Status Code 401 received from GCM server~n~p~n~p~n", [Headers, Body]),
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Authentication error - please check the GCM API Key"}),
     {stop, normal, State};
-process_result({{_HTTPVersion, 500, _Status}, Headers, _Body}, _Time, State) ->
-    % Internal server error
-    %% @todo Write me
-    {stop, normal, State};
-process_result({{_HTTPVersion, 503, _Status}, Headers, _Body}, _Time, State) ->
-    % Server temporary unavailable
-    %% @todo Write me
-    {stop, normal, State};
+process_result({{_HTTPVersion, StatusCode, _Status}, Headers, _Body}, _Time, State) when StatusCode =:= 500; StatusCode =:= 503 ->
+    % Internal server error (500) or Server temporary unavailable (503)
+    case proplists:get_value("retry-after", Headers) of
+        undefined ->
+            process_error_with_exponential_backoff(State);
+        RetryAfter ->
+            case string:to_integer(RetryAfter) of
+                {Int, Rest} when is_integer(Int), length(Rest) =:= 0 ->
+                    gen_fsm:send_event_after(Int * 1000, send),
+                    {next_state, idle, State};
+                {error, _Reason} ->
+                    %% @todo Try to parse an HTTP date
+                    process_error_with_exponential_backoff(State)
+            end
+    end;
 process_result(_Result, _Time, State) ->
     % Unknown error
     %% @todo Write me
     {stop, normal, State}.
 
 process_error({connect_failed, Reason}, State = #state{app = App}) ->
+    %% @todo Use exponential back-off
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot connect to the GCM server - will retry in 10 seconds"}),
     gen_fsm:send_event_after(10 * 1000, send),
     {next_state, idle, State};
 process_error({send_failed, Reason}, State = #state{app = App}) ->
+    %% @todo Use exponential back-off
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot send request to the GCM server - will retry in 10 seconds"}),
     gen_fsm:send_event_after(10 * 1000, send),
     {next_state, idle, State};
 process_error(Reason, State = #state{app = App}) ->
+    %% @todo Use exponential back-off
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "Unknown error when sending request to the GCM server (~p) - will retry in 10 seconds", [Reason]}),
     gen_fsm:send_event_after(10 * 1000, send),
     {next_state, idle, State}.
+
+process_error_with_exponential_backoff(State = #state{app = App, backoff_delay = BackoffDelay}) ->
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server error - will retry in ~p seconds", [BackoffDelay]}),
+    gen_fsm:send_event_after(BackoffDelay * 1000, send),
+    NewBackoffDelay = min(BackoffDelay * 2, ?MAX_BACKOFF_DELAY),
+    {next_state, idle, State#state{backoff_delay = NewBackoffDelay}}
 
 process_json_result_items(undefined, {_Index, List}, _State) ->
     List;
@@ -133,6 +153,7 @@ process_json_result_items([Item | Rest], {Index, List}, State = #state{messages 
     RegistrationID = proplists:get_value(<<"registration_id">>, Item),
     case MessageId =/= undefined andalso RegistrationID =/= undefined of
         true ->
+            % Replace the old registration ID with the new one
             Msg = lists:nth(Index, Messages),
             Reg = Msg:registration(),
             ModifiedReg = Reg:set([{value = RegistrationID}]),
@@ -143,6 +164,9 @@ process_json_result_items([Item | Rest], {Index, List}, State = #state{messages 
                 undefined ->
                     process_json_result_items(Rest, {Index + 1, List}, State);
                 <<"Unavailable">> ->
+                    Msg = lists:nth(Index, Messages),
+                    process_json_result_items(Rest, {Index + 1, [Msg | List]}, State);
+                <<"InternalServerError">> ->
                     Msg = lists:nth(Index, Messages),
                     process_json_result_items(Rest, {Index + 1, [Msg | List]}, State);
                 <<"NotRegistered">> ->
