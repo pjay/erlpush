@@ -92,7 +92,7 @@ process_result({{_HTTPVersion, 200, _Status}, Headers, Body}, Time, State = #sta
             end
             %% @todo Logging
     end;
-process_result({{_HTTPVersion, 400, _Status}, Headers, Body}, _Time, State) ->
+process_result({{_HTTPVersion, 400, _Status}, Headers, Body}, _Time, State = #state{app = App}) ->
     % Invalid JSON format or invalid fields
     error_logger:error_msg("HTTP Status Code 400 received from GCM server~n~p~n~p~n", [Headers, Body]),
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "Invalid request (JSON format or invalid fields) - please contact the developer"}),
@@ -142,7 +142,7 @@ process_error_with_exponential_backoff(State = #state{app = App, backoff_delay =
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server error - will retry in ~p seconds", [BackoffDelay]}),
     gen_fsm:send_event_after(BackoffDelay * 1000, send),
     NewBackoffDelay = min(BackoffDelay * 2, ?MAX_BACKOFF_DELAY),
-    {next_state, idle, State#state{backoff_delay = NewBackoffDelay}}
+    {next_state, idle, State#state{backoff_delay = NewBackoffDelay}}.
 
 process_json_result_items(undefined, {_Index, List}, _State) ->
     List;
