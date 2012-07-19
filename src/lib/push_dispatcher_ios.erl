@@ -53,7 +53,7 @@ disconnected(Event, State) ->
 connected(send, State = #state{app = App, socket = Socket}) ->
     Notifications = boss_db:find(notification, [app_id = App:id(), delivery_time = undefined]),
     {Time, _} = timer:tc(?MODULE, send_notifications, [Socket, Notifications]),
-    gen_event:notify(push_dispatcher_logger, {info, App:id(), "Sent ~p notifications in ~.3f seconds", [length(Notifications), Time/1000000]}),
+    gen_event:notify(push_dispatcher_logger, {info, App:id(), "Delivered ~p iOS notifications in ~.3f seconds", [length(Notifications), Time/1000000]}),
     {next_state, connected, State, 3600 * 1000};  % timeout after 1 hour
 connected(timeout, State = #state{app = App}) ->
     gen_event:notify(push_dispatcher_logger, {debug, App:id(), "Stopping worker after timeout"}),

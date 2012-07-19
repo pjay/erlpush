@@ -68,7 +68,7 @@ send_request(State = #state{app = App, messages = Messages, httpc_pid = HttpcPid
     end.
 
 process_result({{_HTTPVersion, 200, _Status}, Headers, Body}, Time, State = #state{app = App, messages = Messages}) ->
-    % Message was processed successfully
+    % Messages were processed successfully
     Response = jsx:json_to_term(Body),
     Success = proplists:get_value(<<"success">>, Response),
     Failure = proplists:get_value(<<"failure">>, Response),
@@ -80,17 +80,17 @@ process_result({{_HTTPVersion, 200, _Status}, Headers, Body}, Time, State = #sta
                 ModifiedMsg = Msg:set(delivery_time, calendar:universal_time()),
                 ModifiedMsg:save()
             end, Messages),
-            gen_event:notify(push_dispatcher_logger, {info, App:id(), "Sent ~p messages in ~.3f seconds", [length(Messages), Time/1000000]}),
+            gen_event:notify(push_dispatcher_logger, {info, App:id(), "Delivered ~p GCM messages successfully in ~.3f seconds", [length(Messages), Time/1000000]}),
             {stop, normal, State};
         false ->
+            gen_event:notify(push_dispatcher_logger, {info, App:id(), "Delivered ~p GCM messages (~p successes, ~p failures) in ~.3f seconds", [length(Messages), Success, Failure, Time/1000000]}),
             ResultItems = proplists:get_value(<<"results">>, Response),
             case process_json_result_items(ResultItems, {1, []}, State) of
-                UnsentMessages when length(UnsentMessages) > 1 ->
+                RetryMessages when length(RetryMessages) > 1 ->
                     gen_fsm:send_event_after(500, send),
-                    {next_state, idle, State#state{messages = UnsentMessages}};
+                    {next_state, idle, State#state{messages = RetryMessages}};
                 _ -> {stop, normal, State}
             end
-            %% @todo Logging
     end;
 process_result({{_HTTPVersion, 400, _Status}, Headers, Body}, _Time, State = #state{app = App}) ->
     % Invalid JSON format or invalid fields
@@ -102,44 +102,43 @@ process_result({{_HTTPVersion, 401, _Status}, Headers, Body}, _Time, State = #st
     error_logger:error_msg("HTTP Status Code 401 received from GCM server~n~p~n~p~n", [Headers, Body]),
     gen_event:notify(push_dispatcher_logger, {error, App:id(), "Authentication error - please check the GCM API Key"}),
     {stop, normal, State};
-process_result({{_HTTPVersion, StatusCode, _Status}, Headers, _Body}, _Time, State) when StatusCode =:= 500; StatusCode =:= 503 ->
+process_result({{_HTTPVersion, StatusCode, _Status}, Headers, _Body}, _Time, State = #state{app = App, backoff_delay = BackoffDelay}) when StatusCode =:= 500; StatusCode =:= 503 ->
     % Internal server error (500) or Server temporary unavailable (503)
     case proplists:get_value("retry-after", Headers) of
         undefined ->
-            process_error_with_exponential_backoff(State);
+            gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server returned HTTP status code ~p without Retry-After - will retry in ~p seconds", [StatusCode, BackoffDelay]}),
+            retry_with_exponential_backoff(State);
         RetryAfter ->
             case string:to_integer(RetryAfter) of
                 {Int, Rest} when is_integer(Int), length(Rest) =:= 0 ->
+                    gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server returned HTTP status code ~p with Retry-After - will retry in ~p seconds", [StatusCode, Int]}),
                     gen_fsm:send_event_after(Int * 1000, send),
                     {next_state, idle, State};
                 {error, _Reason} ->
                     %% @todo Try to parse an HTTP date
-                    process_error_with_exponential_backoff(State)
+                    gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server returned HTTP status code ~p with unparsable Retry-After - will retry in ~p seconds", [StatusCode, BackoffDelay]}),
+                    retry_with_exponential_backoff(State)
             end
     end;
-process_result(_Result, _Time, State) ->
+process_result(Result, _Time, State = #state{app = App, backoff_delay = BackoffDelay}) ->
     % Unknown error
-    %% @todo Write me
-    {stop, normal, State}.
+    error_logger:error_msg("Unknown error received from GCM server~n~p~n", [Result]),
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server returned an unknown error - will retry in ~p seconds", [BackoffDelay]}),
+    retry_with_exponential_backoff(State).
 
-process_error({connect_failed, Reason}, State = #state{app = App}) ->
-    %% @todo Use exponential back-off
-    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot connect to the GCM server - will retry in 10 seconds"}),
-    gen_fsm:send_event_after(10 * 1000, send),
-    {next_state, idle, State};
-process_error({send_failed, Reason}, State = #state{app = App}) ->
-    %% @todo Use exponential back-off
-    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot send request to the GCM server - will retry in 10 seconds"}),
-    gen_fsm:send_event_after(10 * 1000, send),
-    {next_state, idle, State};
-process_error(Reason, State = #state{app = App}) ->
-    %% @todo Use exponential back-off
-    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Unknown error when sending request to the GCM server (~p) - will retry in 10 seconds", [Reason]}),
-    gen_fsm:send_event_after(10 * 1000, send),
-    {next_state, idle, State}.
+process_error({connect_failed, Reason}, State = #state{app = App, backoff_delay = BackoffDelay}) ->
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot connect to the GCM server - will retry in ~p seconds", [BackoffDelay]}),
+    retry_with_exponential_backoff(State);
+process_error({send_failed, Reason}, State = #state{app = App, backoff_delay = BackoffDelay}) ->
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Cannot send request to the GCM server - will retry in ~p seconds", [BackoffDelay]}),
+    retry_with_exponential_backoff(State);
+process_error(Reason, State = #state{app = App, backoff_delay = BackoffDelay}) ->
+    % Unknown error
+    error_logger:error_msg("Unknown error received when connecting or sending request to the GCM server~n~p~n", [Reason]),
+    gen_event:notify(push_dispatcher_logger, {error, App:id(), "Unknown error when sending request to the GCM server - will retry in ~p seconds", [BackoffDelay]}),
+    retry_with_exponential_backoff(State).
 
-process_error_with_exponential_backoff(State = #state{app = App, backoff_delay = BackoffDelay}) ->
-    gen_event:notify(push_dispatcher_logger, {error, App:id(), "GCM server error - will retry in ~p seconds", [BackoffDelay]}),
+retry_with_exponential_backoff(State = #state{app = App, backoff_delay = BackoffDelay}) ->
     gen_fsm:send_event_after(BackoffDelay * 1000, send),
     NewBackoffDelay = min(BackoffDelay * 2, ?MAX_BACKOFF_DELAY),
     {next_state, idle, State#state{backoff_delay = NewBackoffDelay}}.
@@ -151,28 +150,56 @@ process_json_result_items([], {_Index, List}, _State) ->
 process_json_result_items([Item | Rest], {Index, List}, State = #state{messages = Messages}) ->
     MessageId = proplists:get_value(<<"message_id">>, Item),
     RegistrationID = proplists:get_value(<<"registration_id">>, Item),
+    Message = lists:nth(Index, Messages),
     case MessageId =/= undefined andalso RegistrationID =/= undefined of
         true ->
             % Replace the old registration ID with the new one
-            Msg = lists:nth(Index, Messages),
-            Reg = Msg:registration(),
+            Reg = Message:registration(),
             ModifiedReg = Reg:set([{value = RegistrationID}]),
             ModifiedReg:save(),
             process_json_result_items(Rest, {Index + 1, List}, State);
         false ->
             case proplists:get_value(<<"error">>, Item) of
                 undefined ->
+                    case MessageId of
+                        Id when is_list(Id) -> update_delivery_time(Message);
+                        _ -> ok
+                    end,
+                    process_json_result_items(Rest, {Index + 1, List}, State);
+                <<"InvalidRegistration">> ->
+                    delete_associated_registration(Index, Messages),
                     process_json_result_items(Rest, {Index + 1, List}, State);
                 <<"Unavailable">> ->
-                    Msg = lists:nth(Index, Messages),
-                    process_json_result_items(Rest, {Index + 1, [Msg | List]}, State);
+                    process_json_result_items(Rest, {Index + 1, [Message | List]}, State);
                 <<"InternalServerError">> ->
-                    Msg = lists:nth(Index, Messages),
-                    process_json_result_items(Rest, {Index + 1, [Msg | List]}, State);
+                    process_json_result_items(Rest, {Index + 1, [Message | List]}, State);
                 <<"NotRegistered">> ->
-                    Msg = lists:nth(Index, Messages),
-                    Reg = Msg:registration(),
-                    boss_db:delete(Reg:id()),
+                    delete_associated_registration(Index, Messages),
+                    process_json_result_items(Rest, {Index + 1, List}, State);
+                <<"MismatchSenderId">> ->
+                    delete_associated_registration(Index, Messages),
+                    process_json_result_items(Rest, {Index + 1, List}, State);
+                <<"MessageTooBig">> ->
+                    % Mark it as delivered, won't retry sending it again
+                    update_delivery_time(Message),
+                    process_json_result_items(Rest, {Index + 1, List}, State);
+                <<"InvalidTtl">> ->
+                    % Mark it as delivered, won't retry sending it again
+                    update_delivery_time(Message),
+                    process_json_result_items(Rest, {Index + 1, List}, State);
+                Other ->
+                    error_logger:warning_msg("Unknown error '~p' encountered when parsing result items~n", [Other]),
+                    % Mark it as delivered, won't retry sending it again
+                    update_delivery_time(Message),
                     process_json_result_items(Rest, {Index + 1, List}, State)
             end
     end.
+
+update_delivery_time(Msg) ->
+    ModifiedMsg = Msg:set(delivery_time, calendar:universal_time()),
+    ModifiedMsg:save().
+
+delete_associated_registration(Index, Messages) ->
+    Msg = lists:nth(Index, Messages),
+    Reg = Msg:registration(),
+    boss_db:delete(Reg:id()).

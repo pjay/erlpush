@@ -50,10 +50,10 @@ dl#app-details dd {
 
 dl#app-stats dt {
   float: left;
-  width: 220px;
+  width: 255px;
 }
 dl#app-stats dd {
-  margin: 0 0 2px 220px;
+  margin: 0 0 2px 255px;
 }
 
 /* Events log */

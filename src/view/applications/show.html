@@ -22,9 +22,9 @@
 
 <h3>Statistics</h3>
 <dl id="app-stats">
-  <dt>Number of iOS device tokens</dt>
+  <dt>Number of active iOS device tokens</dt>
   <dd>{{ app.device_tokens | length }} (<a href="{% url controller="device_tokens" action="index" app_id=app.id %}">display all</a>)</dd>
-  <dt>Number of Android registrations</dt>
+  <dt>Number of active Android registrations</dt>
   <dd>{{ app.registrations | length }} (<a href="{% url controller="registrations" action="index" app_id=app.id %}">display all</a>)</dd>
 </dl>
 
