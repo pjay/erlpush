@@ -38,8 +38,8 @@ handle_call({send_broadcast_gcm, App, Payload}, _From, State) ->
             Message -> [Message | Acc]
         end
     end, [], App:registrations()),
-    %% @todo Split the Messages list by slices of 1000 elements and start a worker for each slice
-    push_dispatcher_gcm:start(App, lists:reverse(Messages)),
+    % Split the list of messages by slices of 1000 elements (GCM limit) and start a worker for each slice
+    lists:foreach(fun (L) -> push_dispatcher_gcm:start(App, L) end, partition_list(lists:reverse(Messages), 1000)),
     {reply, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -60,5 +60,22 @@ create_message(App, Registration, Payload) ->
     Message = boss_record:new(message, [{app_id, App:id()}, {registration_id, Registration:id()}, {payload, term_to_binary(Payload)}]),
     case Message:save() of
         {ok, SavedMessage} -> SavedMessage;
-        {error, ErrorList} -> undefined
+        {error, _ErrorList} -> undefined
+    end.
+
+partition_list(List, Size) when Size =:= 0 ->
+    erlang:error(badarg, [List, Size]);
+partition_list(List, Size) when Size > length(List) ->
+    [List];
+partition_list(List, Size) ->
+    partition_list(List, Size, []).
+
+partition_list(List, Size, Acc) when Size > length(List) ->
+    lists:reverse([List|Acc]);
+partition_list(List, Size, Acc) ->
+    case lists:split(Size, List) of
+        {List1, List2} when length(List2) > 0 ->
+            partition_list(List2, Size, [List1|Acc]);
+        {List1, _List2} ->
+            lists:reverse([List1|Acc])
     end.
